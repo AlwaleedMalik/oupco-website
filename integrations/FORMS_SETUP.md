@@ -21,7 +21,7 @@ Dropdown answers are always saved in English (e.g. "Healthcare"), whichever lang
    (Add the same two variables in your hosting provider when deploying.)
 
 ## 2. Brevo
-1. Senders & IPs → add and verify `no-reply@oupco.com` (or the sender you prefer) and authenticate the oupco.com domain (DKIM/DMARC).
+1. Senders & IPs → add and verify `info@oupco.com` and authenticate the oupco.com domain (DKIM/DMARC).
 2. SMTP & API → create an **API key**.
 
 ## 3. n8n
