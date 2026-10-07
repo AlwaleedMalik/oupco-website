@@ -338,7 +338,7 @@ export const en = {
 
   pages: {
     home: {
-      badge: "Saudi B2B procurement · Aligned with Vision 2030",
+      badge: "Saudi B2B procurement",
       h1a: "Smarter procurement.",
       h1b: "One unified platform.",
       leadStrong: "One vendor. 500+ vetted suppliers. One ZATCA-compliant invoice.",
