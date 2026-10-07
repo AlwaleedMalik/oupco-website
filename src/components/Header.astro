@@ -17,7 +17,8 @@ const l = localizer(lang);
 // path without the /ar prefix, so active states compare against the plain hrefs
 const path = stripLang(Astro.url.pathname.replace(/\/$/, "") || "/");
 const otherLang = lang === "ar" ? "en" : "ar";
-const switchHref = otherLang === "ar" ? `/ar${path === "/" ? "" : path}` : path;
+// The single static 404 serves every missing URL, so its switch goes to the other home page
+const switchHref = path === "/404" ? (otherLang === "ar" ? "/ar" : "/") : otherLang === "ar" ? `/ar${path === "/" ? "" : path}` : path;
 const nav = t.nav.map((item) => ({ ...item, children: item.children ? t.solutions : undefined }));
 ---
 

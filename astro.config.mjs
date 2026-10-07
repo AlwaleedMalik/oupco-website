@@ -9,7 +9,7 @@ export default defineConfig({
   trailingSlash: 'never',
   build: { format: 'file', inlineStylesheets: 'always' },
   // English at "/", Arabic at "/ar/": the sitemap links each page to its other-language version
-  integrations: [sitemap({ i18n: { defaultLocale: 'en', locales: { en: 'en-SA', ar: 'ar-SA' } }, filter: (page) => !page.includes('/404') })],
+  integrations: [sitemap({ i18n: { defaultLocale: 'en', locales: { en: 'en', ar: 'ar' } }, filter: (page) => !page.includes('/404') })],
   vite: {
     plugins: [tailwindcss()],
   },
