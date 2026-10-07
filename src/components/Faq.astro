@@ -1,0 +1,24 @@
+---
+// Pattern from Relume FAQ 1, using native <details> — accessible, zero JS.
+import Icon from "./Icon.astro";
+import { getT } from "../i18n";
+
+interface Props {
+  items?: { q: string; a: string }[];
+}
+const { items = getT(Astro.url).faqs } = Astro.props;
+---
+
+<div class="divide-y divide-line border-y border-line">
+  {items.map((f) => (
+    <details class="group" name="faq">
+      <summary class="flex min-h-16 cursor-pointer list-none items-center justify-between gap-6 py-5 font-display text-h6 font-medium text-navy-900 [&::-webkit-details-marker]:hidden">
+        {f.q}
+        <span class="flex size-9 shrink-0 items-center justify-center rounded-full border border-line transition-transform duration-300 group-open:rotate-45 group-open:border-teal-600 group-open:bg-teal-600 group-open:text-white">
+          <Icon name="plus" size={18} />
+        </span>
+      </summary>
+      <p class="max-w-3xl pb-6 pe-12 text-medium text-muted">{f.a}</p>
+    </details>
+  ))}
+</div>

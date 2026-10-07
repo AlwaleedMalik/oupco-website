@@ -1,0 +1,99 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Icon from "../../components/Icon.astro";
+import Field from "../../components/Field.astro";
+import FormEnhance from "../../components/FormEnhance.astro";
+import Honeypot from "../../components/Honeypot.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import WhatsAppButton from "../../components/WhatsAppButton.astro";
+import { site, telHref } from "../../data/site";
+import { en, getLang, getT, langPaths, localizer, options } from "../../i18n";
+
+export function getStaticPaths() {
+  return langPaths();
+}
+
+const lang = getLang(Astro.url);
+const t = getT(Astro.url);
+const p = t.pages.contact;
+const f = t.forms;
+const l = localizer(lang);
+const comma = lang === "ar" ? "، " : ", ";
+const topics = options(en.lists.contactTopics, t.lists.contactTopics);
+const details = [
+  { icon: "mail", label: p.details.email, value: site.email, href: `mailto:${site.email}`, ltr: true },
+  { icon: "phone", label: p.details.phone, value: site.phone, href: telHref, ltr: true },
+  { icon: "clock", label: p.details.hours, value: t.company.hours, href: "", ltr: false },
+  { icon: "map-pin", label: p.details.office, value: [t.company.address.line1, t.company.address.line2, t.company.address.country].join(comma), href: "", ltr: false },
+];
+---
+
+<Layout title={p.title} description={p.description}>
+  <PageHeader eyebrow={p.header.eyebrow} title={p.header.title} text={p.header.text} />
+
+  <!-- Relume Contact 6 (split: form + details) -->
+  <section class="px-[5%] py-16 md:py-24">
+    <div class="container grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+      <div class="flex flex-col rounded-[1.5rem] bg-white p-6 shadow-lift ring-1 ring-line md:p-10">
+        <form data-enhance data-table="contact_requests" method="post" class="relative grid flex-1 gap-5 sm:grid-cols-2 lg:grid-rows-[auto_auto_auto_auto_1fr_auto]">
+          <Honeypot />
+          <h2 class="text-h4 sm:col-span-2">{p.formTitle}</h2>
+          <Field name="name" label={f.fullName} rule="name" required autocomplete="name" />
+          <Field name="company" label={f.companyShort} rule="company" required autocomplete="organization" />
+          <Field name="email" label={f.workEmail} type="email" rule="email" required autocomplete="email" placeholder="name@company.com" />
+          <Field name="phone" label={f.mobile} type="phone-sa" required helper={f.mobileHelp} />
+          <Field name="interest" label={p.topic} type="select" required options={topics} class="sm:col-span-2" />
+          <Field name="message" label={p.message} type="textarea" rule="message" required rows={6} grow class="sm:col-span-2 lg:flex lg:flex-col" />
+          <p class="hidden rounded-button bg-error/10 p-3 text-small text-error sm:col-span-2" data-form-error role="alert">
+            {f.errorBefore} <a href={`mailto:${site.email}`} class="font-semibold underline underline-offset-2" dir="ltr">{site.email}</a>.
+          </p>
+          <div class="flex flex-wrap items-center gap-4 sm:col-span-2">
+            <button type="submit" class="inline-flex min-h-13 cursor-pointer items-center gap-2 rounded-button bg-teal-600 px-7 font-display font-medium text-white shadow-card transition-colors duration-200 hover:bg-teal-700 disabled:cursor-wait disabled:opacity-70">
+              {p.send} <Icon name="send" size={18} />
+            </button>
+            <p class="text-small text-muted">{f.pdpl}</p>
+          </div>
+        </form>
+        <div data-success hidden tabindex="-1" class="py-10 text-center outline-none" role="status">
+          <span class="mx-auto flex size-16 items-center justify-center rounded-full bg-success/10 text-success"><Icon name="circle-check" size={32} /></span>
+          <h2 class="mt-6 text-h4">{p.successTitle}</h2>
+          <p class="mx-auto mt-2 max-w-sm text-muted">{p.successText}</p>
+        </div>
+      </div>
+
+      <aside class="flex flex-col gap-6">
+        <div class="rounded-[1.5rem] bg-[#e9faf0] p-6 ring-1 ring-[#25D366]/30 md:p-8">
+          <h2 class="text-h5">{p.chat.title}</h2>
+          <p class="mt-1.5 text-small text-muted">{p.chat.text} <span class="font-medium text-navy-900 whitespace-nowrap" dir="ltr">{site.whatsapp}</span>.</p>
+          <WhatsAppButton size="md" label={t.ui.whatsapp.open} class="mt-5 w-full" />
+        </div>
+        <div class="rounded-[1.5rem] bg-white p-6 shadow-card ring-1 ring-line md:p-8">
+          <h2 class="text-h5">{p.details.title}</h2>
+          <ul class="mt-4 divide-y divide-line">
+            {details.map((d) => (
+              <li class="flex items-start gap-4 py-3.5">
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-700"><Icon name={d.icon} size={20} /></span>
+                <div class="min-w-0">
+                  <p class="text-small text-muted">{d.label}</p>
+                  {d.href ? (
+                    <a href={d.href} class="font-medium text-navy-900 hover:text-teal-600" dir={d.ltr ? "ltr" : undefined}>{d.value}</a>
+                  ) : d.icon === "map-pin" ? (
+                    <address class="font-medium not-italic text-navy-900">{d.value}</address>
+                  ) : (
+                    <p class="font-medium text-navy-900">{d.value}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div class="rounded-[1.5rem] bg-navy-900 p-6 text-white md:p-8">
+          <h2 class="text-h6 text-white">{p.account.title}</h2>
+          <p class="mt-1.5 text-small text-white/75">{p.account.text}</p>
+          <a href={l("/apply")} class="mt-3 inline-flex min-h-11 items-center gap-1.5 font-display font-medium text-teal-300 hover:text-white">{t.ui.applyNow} <Icon name="arrow-right" size={18} /></a>
+        </div>
+      </aside>
+    </div>
+  </section>
+  <FormEnhance />
+</Layout>

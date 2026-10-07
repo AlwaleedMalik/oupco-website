@@ -1,0 +1,143 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Icon from "../../components/Icon.astro";
+import Field from "../../components/Field.astro";
+import FormEnhance from "../../components/FormEnhance.astro";
+import Honeypot from "../../components/Honeypot.astro";
+import OnboardingSteps from "../../components/OnboardingSteps.astro";
+import ArcMotif from "../../components/ArcMotif.astro";
+import Faq from "../../components/Faq.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import { site } from "../../data/site";
+import { en, getLang, getT, langPaths, localizer, options } from "../../i18n";
+
+export function getStaticPaths() {
+  return langPaths();
+}
+
+const t = getT(Astro.url);
+const p = t.pages.apply;
+const f = t.forms;
+const l = localizer(getLang(Astro.url));
+
+// Saved values stay English; labels follow the page language
+const needValues = [...en.products.map((x) => x.title), ...en.services.map((x) => x.title), ...en.lists.extraNeeds];
+const needLabels = [...t.products.map((x) => x.title), ...t.services.map((x) => x.title), ...t.lists.extraNeeds];
+const needs = options(needValues, needLabels);
+const sectors = options(en.lists.sectors, t.lists.sectors);
+const sizes = options(en.lists.companySizes, t.lists.companySizes);
+const spend = options(en.lists.monthlySpend, t.lists.monthlySpend);
+---
+
+<Layout title={p.title} description={p.description}>
+  <section class="relative isolate overflow-hidden bg-navy-900 px-[5%] pb-16 pt-16 text-white md:pb-20 md:pt-24 lg:pt-28">
+    <ArcMotif class="pointer-events-none absolute -end-40 -top-32 -z-10 w-[34rem] opacity-80" dark="#1b3c59" light="#195e7f" />
+    <div class="container">
+      <div class="max-w-2xl">
+        <p class="mb-4 inline-flex items-center gap-2 font-display text-small font-semibold uppercase tracking-[0.12em] text-teal-300">
+          <span class="h-px w-6 bg-current" aria-hidden="true"></span>{p.eyebrow}
+        </p>
+        <h1 class="text-h1 text-white">{p.h1}</h1>
+        <p class="mt-5 max-w-xl text-large text-white/75">{p.lead}</p>
+        <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-small text-white/85">
+          {p.checks.map((c) => (
+            <li class="inline-flex items-center gap-2"><Icon name="check" size={18} class="text-teal-300" />{c}</li>
+          ))}
+        </ul>
+      </div>
+      <div class="mt-12"><OnboardingSteps tone="dark" /></div>
+    </div>
+  </section>
+
+  <section id="apply-form" class="px-[5%] py-16 md:py-24">
+    <div class="container grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:gap-12">
+      <div class="rounded-[1.5rem] bg-white p-6 shadow-lift ring-1 ring-line md:p-10">
+        <form data-enhance data-table="client_applications" method="post" class="relative grid gap-5 sm:grid-cols-2">
+          <Honeypot />
+          <h2 class="text-h4 sm:col-span-2">{p.formTitle}</h2>
+          <fieldset class="contents">
+            <legend class="font-display text-h6 font-semibold text-navy-900 sm:col-span-2">{f.company}</legend>
+            <Field name="company" label={f.companyName} rule="company" required autocomplete="organization" class="sm:col-span-2" />
+            <Field name="cr" label={f.cr} rule="cr" required placeholder={f.crPlaceholder} helper={f.crHelp} />
+            <Field name="vat" label={f.vat} rule="vat" placeholder="3XXXXXXXXXXXXX3" helper={f.vatHelp} />
+            <Field name="sector" label={p.sector} type="select" required options={sectors} />
+            <Field name="company_size" label={p.size} type="select" required options={sizes} />
+            <Field name="main_need" label={p.mainNeed} type="select" required options={needs} />
+            <Field name="monthly_spend" label={p.spend} type="select" options={spend} />
+          </fieldset>
+          <fieldset class="contents">
+            <legend class="mt-4 border-t border-line pt-6 font-display text-h6 font-semibold text-navy-900 sm:col-span-2">{f.contactPerson}</legend>
+            <Field name="name" label={f.fullName} rule="name" required autocomplete="name" />
+            <Field name="role" label={f.jobTitle} rule="jobTitle" autocomplete="organization-title" />
+            <Field name="email" label={f.workEmail} type="email" rule="email" required autocomplete="email" placeholder="name@company.com" />
+            <Field name="phone" label={f.mobile} type="phone-sa" required helper={f.mobileHelp} />
+            <Field name="notes" label={p.notes} type="textarea" rule="longText" rows={4} helper={p.notesHelp} class="sm:col-span-2" />
+          </fieldset>
+          <label class="flex cursor-pointer items-start gap-3 text-small text-muted sm:col-span-2">
+            <input type="checkbox" name="frame_agreement" class="mt-0.5 size-5 shrink-0 cursor-pointer accent-teal-600" />
+            {p.frame}
+          </label>
+          <p class="hidden rounded-button bg-error/10 p-3 text-small text-error sm:col-span-2" data-form-error role="alert">
+            {f.errorBefore} <a href={`mailto:${site.email}`} class="font-semibold underline underline-offset-2" dir="ltr">{site.email}</a>.
+          </p>
+          <div class="flex flex-wrap items-center gap-4 sm:col-span-2">
+            <button type="submit" class="inline-flex min-h-13 cursor-pointer items-center gap-2 rounded-button bg-teal-600 px-7 font-display font-medium text-white shadow-card transition-colors duration-200 hover:bg-teal-700 disabled:cursor-wait disabled:opacity-70">
+              {p.submit} <Icon name="send" size={18} />
+            </button>
+            <p class="text-small text-muted">{f.pdpl}</p>
+          </div>
+        </form>
+        <div data-success hidden tabindex="-1" class="py-10 text-center outline-none" role="status">
+          <span class="mx-auto flex size-16 items-center justify-center rounded-full bg-success/10 text-success"><Icon name="circle-check" size={32} /></span>
+          <h2 class="mt-6 text-h4">{p.successTitle}</h2>
+          <p class="mx-auto mt-2 max-w-md text-muted">{p.successText}</p>
+        </div>
+      </div>
+
+      <aside class="flex flex-col gap-6">
+        <div class="rounded-[1.5rem] bg-white p-6 shadow-card ring-1 ring-line md:p-8">
+          <h2 class="text-h5">{p.need.title}</h2>
+          <p class="mt-1.5 text-small text-muted">{p.need.text}</p>
+          <ul class="mt-5 space-y-4">
+            {t.applyRequirements.map((r) => (
+              <li class="flex items-start gap-3">
+                <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-700"><Icon name={r.icon} size={20} /></span>
+                <span>
+                  <span class="block font-medium text-navy-900">{r.title}</span>
+                  <span class="block text-small text-muted">{r.text}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div class="rounded-[1.5rem] bg-canvas p-6 md:p-8">
+          <h2 class="text-h5">{p.getTitle}</h2>
+          <ul class="mt-5 space-y-3">
+            {p.included.map((i) => (
+              <li class="flex items-start gap-3"><Icon name="circle-check" size={20} class="mt-0.5 shrink-0 text-teal-600" /><span class="text-navy-900">{i}</span></li>
+            ))}
+          </ul>
+        </div>
+        <div class="rounded-[1.5rem] bg-white p-6 shadow-card ring-1 ring-line md:p-8">
+          <h2 class="text-h6">{p.existing.title}</h2>
+          <p class="mt-1.5 text-small text-muted">{p.existing.text}</p>
+          <a href={site.loginUrl} class="mt-3 inline-flex min-h-11 items-center gap-1.5 font-display font-medium text-teal-600 hover:text-navy-900">{p.existing.cta} <Icon name="arrow-up-right" size={18} /></a>
+        </div>
+        <div class="rounded-[1.5rem] bg-navy-900 p-6 text-white md:p-8">
+          <h2 class="text-h6 text-white">{p.supplier.title}</h2>
+          <p class="mt-1.5 text-small text-white/75">{p.supplier.text}</p>
+          <a href={l("/become-a-supplier")} class="mt-3 inline-flex min-h-11 items-center gap-1.5 font-display font-medium text-teal-300 hover:text-white">{p.supplier.cta} <Icon name="arrow-right" size={18} /></a>
+        </div>
+      </aside>
+    </div>
+  </section>
+  <section class="border-t border-line px-[5%] py-16 md:py-24">
+    <div class="container grid gap-10 lg:grid-cols-[1fr_2fr] lg:gap-20">
+      <SectionHeading eyebrow={p.faq.eyebrow} title={p.faq.title} text={p.faq.text}>
+        <a href={l("/contact")} class="mt-6 inline-flex min-h-11 items-center gap-1.5 font-display font-medium text-teal-600 hover:text-navy-900">{t.ui.contactUs} <Icon name="arrow-right" size={18} /></a>
+      </SectionHeading>
+      <Faq items={t.applyFaqs} />
+    </div>
+  </section>
+  <FormEnhance />
+</Layout>

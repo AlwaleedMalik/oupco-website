@@ -1,0 +1,83 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import Icon from "../../components/Icon.astro";
+import Button from "../../components/Button.astro";
+import LogoWall from "../../components/LogoWall.astro";
+import CtaBanner from "../../components/CtaBanner.astro";
+import { brands } from "../../data/logos";
+import { getLang, getT, langPaths, localizer } from "../../i18n";
+
+export function getStaticPaths() {
+  return langPaths();
+}
+
+const t = getT(Astro.url);
+const p = t.pages.products;
+const l = localizer(getLang(Astro.url));
+---
+
+<Layout title={p.title} description={p.description}>
+  <PageHeader eyebrow={p.header.eyebrow} title={p.header.title} text={p.header.text}>
+    <nav aria-label={p.categoriesNav} class="mt-8 flex flex-wrap gap-2">
+      {t.products.map((pr) => (
+        <a href={`#${pr.id}`} class="inline-flex min-h-10 items-center rounded-full border border-white/20 px-4 text-small text-white/85 transition-colors hover:border-white hover:bg-white/10 hover:text-white">
+          {pr.title}
+        </a>
+      ))}
+    </nav>
+  </PageHeader>
+
+  <!-- CATEGORIES — Relume Layout 400 (alternating detailed cards) -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container grid gap-4 md:grid-cols-2">
+      {t.products.map((pr, i) => (
+        <article id={pr.id} class="group flex flex-col rounded-card border border-line bg-white p-7 transition-shadow duration-200 hover:shadow-lift md:p-9" data-reveal style={`--reveal-delay:${(i % 2) * 80}ms`}>
+          <div class="flex items-center gap-4">
+            <span class="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-navy-900 text-white transition-colors duration-200 group-hover:bg-teal-600"><Icon name={pr.icon} size={26} /></span>
+            <span class="font-display text-small font-semibold text-muted">{String(i + 1).padStart(2, "0")}</span>
+          </div>
+          <h2 class="mt-6 text-h4">{pr.title}</h2>
+          <p class="mt-3 text-muted">{pr.text}</p>
+          <ul class="mt-6 grid gap-x-6 gap-y-2.5 border-t border-line pt-6 sm:grid-cols-2">
+            {pr.items.map((it) => (
+              <li class="flex items-center gap-2.5 text-small text-navy-900"><Icon name="check" size={16} class="shrink-0 text-teal-600" />{it}</li>
+            ))}
+          </ul>
+          {pr.href && (
+            <a href={l(pr.href)} class="mt-6 inline-flex min-h-11 items-center gap-1.5 self-start font-display font-medium text-teal-600 hover:text-navy-900">
+              {p.explorePrinting} <Icon name="arrow-right" size={18} />
+            </a>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- CUSTOM SOURCING — Relume Layout 3 -->
+  <section class="px-[5%] pb-16 md:pb-24">
+    <div class="container">
+      <div class="grid items-center gap-8 rounded-[1.5rem] bg-teal-50 p-8 md:grid-cols-[auto_1fr_auto] md:gap-10 md:p-12" data-reveal>
+        <span class="flex size-16 items-center justify-center rounded-2xl bg-teal-600 text-white"><Icon name="package-search" size={30} /></span>
+        <div>
+          <h2 class="text-h4">{p.custom.title}</h2>
+          <p class="mt-2 text-medium text-muted">{p.custom.text}</p>
+        </div>
+        <Button href="/custom-orders" variant="secondary" size="lg" icon="arrow-right">{p.custom.cta}</Button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRANDS -->
+  <section class="bg-canvas px-[5%] py-16 md:py-24">
+    <div class="container">
+      <SectionHeading eyebrow={p.brands.eyebrow} title={p.brands.title} text={p.brands.text} align="center" class="mb-10 md:mb-12" />
+      <LogoWall logos={brands} cols="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+        <li class="flex h-24 items-center justify-center rounded-card bg-navy-900 px-4 text-center font-display text-small font-medium text-white md:h-28">{t.ui.thousandsMore}</li>
+      </LogoWall>
+    </div>
+  </section>
+
+  <CtaBanner title={p.cta.title} text={p.cta.text} />
+</Layout>

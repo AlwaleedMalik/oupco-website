@@ -1,0 +1,39 @@
+---
+// Opens a WhatsApp chat with OUPCO (pre-filled greeting). Logo inlined at build time.
+import { siWhatsapp } from "simple-icons";
+import { waNumber } from "../data/site";
+import { getT } from "../i18n";
+
+interface Props {
+  label?: string;
+  message?: string;
+  size?: "md" | "lg";
+  class?: string;
+}
+const w = getT(Astro.url).ui.whatsapp;
+const {
+  label = w.label,
+  message = w.message,
+  size = "lg",
+  class: className = "",
+} = Astro.props;
+
+const whatsappHref = (text: string) => `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`;
+---
+
+<a
+  href={whatsappHref(message)}
+  target="_blank"
+  rel="noopener"
+  class:list={[
+    "group inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-button bg-[#25D366] font-display font-semibold whitespace-nowrap text-navy-950 shadow-card transition-[background-color,transform,box-shadow] duration-200 hover:bg-[#1ebe5b] hover:shadow-lift active:scale-[0.98]",
+    size === "lg" ? "min-h-13 px-6 text-base" : "min-h-11 px-5 text-[0.9375rem]",
+    className,
+  ]}
+>
+  <svg viewBox="0 0 24 24" width={size === "lg" ? 22 : 20} height={size === "lg" ? 22 : 20} fill="currentColor" aria-hidden="true" focusable="false">
+    <path d={siWhatsapp.path} />
+  </svg>
+  {label}
+  <span class="sr-only">{w.newTab}</span>
+</a>

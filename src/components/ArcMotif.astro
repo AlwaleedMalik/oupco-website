@@ -1,0 +1,16 @@
+---
+// Decorative "orbit" built from the two arcs of the OUPCO logo mark.
+interface Props {
+  class?: string;
+  dark?: string;
+  light?: string;
+}
+const { class: className = "", dark = "currentColor", light = "#195e7f" } = Astro.props;
+---
+
+<svg viewBox="0 0 750 750" class={className} aria-hidden="true" focusable="false">
+  <g fill="none" stroke-width="111">
+    <path d="M 515.893,170.065 A 255.310,255.310 0 1 0 497.537,590.480" stroke={dark} />
+    <path d="M 529.742,566.649 A 255.310,255.310 0 0 0 545.898,196.612" stroke={light} />
+  </g>
+</svg>

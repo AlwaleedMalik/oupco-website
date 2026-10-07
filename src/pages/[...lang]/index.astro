@@ -1,0 +1,276 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Button from "../../components/Button.astro";
+import Icon from "../../components/Icon.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import LogoWall from "../../components/LogoWall.astro";
+import BeforeAfter from "../../components/BeforeAfter.astro";
+import OnboardingSteps from "../../components/OnboardingSteps.astro";
+import Faq from "../../components/Faq.astro";
+import CtaBanner from "../../components/CtaBanner.astro";
+import ArcMotif from "../../components/ArcMotif.astro";
+import PaymentModels from "../../components/PaymentModels.astro";
+import Intro from "../../components/Intro.astro";
+import { clients, brands } from "../../data/logos";
+import { getLang, getT, langPaths, localizer } from "../../i18n";
+
+export function getStaticPaths() {
+  return langPaths();
+}
+
+const t = getT(Astro.url);
+const p = t.pages.home;
+const l = localizer(getLang(Astro.url));
+---
+
+<Layout overlayHeader>
+  <Intro />
+  <!-- HERO — pattern from Relume Header 11 (full-bleed background video) -->
+  <section class="relative isolate flex min-h-[min(92svh,56rem)] items-center overflow-hidden bg-navy-900 px-[5%] pt-18 text-white">
+    <video
+      id="hero-video"
+      class="absolute inset-0 -z-20 size-full object-cover"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      poster="/media/hero-desktop.webp"
+      aria-hidden="true"
+    >
+      <source src="/media/hero-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
+      <source src="/media/hero-desktop.mp4" type="video/mp4" />
+    </video>
+    <!-- gradient darkens the text side: left in English, right in Arabic -->
+    <div class="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgb(12_28_43/0.92)_0%,rgb(20_46_69/0.78)_45%,rgb(20_46_69/0.35)_100%)] rtl:bg-[linear-gradient(260deg,rgb(12_28_43/0.92)_0%,rgb(20_46_69/0.78)_45%,rgb(20_46_69/0.35)_100%)]" aria-hidden="true"></div>
+
+    <!-- pt-18 on the section reserves the fixed header, so this centres in the visible area -->
+    <div class="container py-8 sm:py-12 md:py-20">
+      <div class="max-w-3xl">
+        <p data-intro-rise style="--rise:0" class="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-small font-medium text-white backdrop-blur-sm sm:mb-5">
+          <Icon name="flag" size={16} class="text-teal-300" />
+          {p.badge}
+        </p>
+        <h1 data-intro-rise style="--rise:1" class="text-h1 text-white">
+          {p.h1a}<br class="hidden sm:block" /> <span class="text-teal-300">{p.h1b}</span>
+        </h1>
+        <p data-intro-rise style="--rise:2" class="mt-5 max-w-xl text-large text-white/80 sm:mt-6">
+          <strong class="font-semibold text-white">{p.leadStrong}</strong> {p.lead}
+        </p>
+        <div data-intro-rise style="--rise:3" class="mt-6 flex flex-wrap gap-3 sm:mt-8">
+          <Button href="/apply" variant="secondary" size="lg" icon="arrow-right">{t.ui.applyNow}</Button>
+          <Button href="/how-it-works" variant="outline-light" size="lg">{p.seeHow}</Button>
+        </div>
+        <ul data-intro-rise style="--rise:4" class="mt-10 hidden flex-wrap gap-x-6 gap-y-3 text-small text-white/80 sm:flex">
+          {p.checks.map((c) => (
+            <li class="inline-flex items-center gap-2"><Icon name="check" size={18} class="text-teal-300" />{c}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT + STATS — Relume Layout 27 -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+      <SectionHeading eyebrow={p.about.eyebrow} title={p.about.title} text={p.about.text}>
+        <div class="mt-8"><Button href="/about" variant="outline" icon="arrow-right">{p.about.cta}</Button></div>
+      </SectionHeading>
+
+      <dl class="grid grid-cols-2 gap-4">
+        {t.stats.map((s, i) => (
+          <div class:list={["rounded-card p-6 md:p-8", i === 0 ? "bg-navy-900 text-white" : "bg-canvas"]} data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <dt class:list={["text-small", i === 0 ? "text-white/70" : "text-muted"]}>{s.label}</dt>
+            <dd class:list={["mt-2 font-display text-h2 font-semibold", i === 0 ? "text-white" : "text-navy-900"]}>{s.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- WHY SAUDI COMPANIES CHOOSE OUPCO — Relume Layout 245 -->
+  <section class="bg-canvas px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.why.eyebrow} title={p.why.title} text={p.why.text} class="mb-12 md:mb-16" />
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {t.whySaudi.map((w, i) => (
+          <article class="rounded-card border border-line bg-white p-6 transition-shadow duration-200 hover:shadow-lift md:p-8" data-reveal style={`--reveal-delay:${(i % 3) * 70}ms`}>
+            <span class="flex size-12 items-center justify-center rounded-xl bg-teal-100 text-teal-700">
+              <Icon name={w.icon} />
+            </span>
+            <h3 class="mt-6 text-h6">{w.title}</h3>
+            <p class="mt-2 text-muted">{w.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- WITHOUT vs WITH OUPCO -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.diff.eyebrow} title={p.diff.title} align="center" class="mb-12 md:mb-16" />
+      <div class="mx-auto max-w-5xl">
+        <BeforeAfter />
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS — Relume Layout 396 (card grid) -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <div class="mb-12 flex flex-col gap-6 md:mb-16 md:flex-row md:items-end md:justify-between">
+        <SectionHeading eyebrow={p.products.eyebrow} title={p.products.title} text={p.products.text} />
+        <Button href="/products" variant="outline" icon="arrow-right" class="self-start md:self-auto">{p.products.cta}</Button>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {t.products.map((pr, i) => (
+          <a href={l(pr.href || "/products")} class="group relative flex flex-col rounded-card border border-line bg-white p-6 transition-[box-shadow,border-color] duration-200 hover:border-teal-600/40 hover:shadow-lift md:p-8" data-reveal style={`--reveal-delay:${(i % 3) * 70}ms`}>
+            <div class="flex items-start justify-between">
+              <span class="flex size-12 items-center justify-center rounded-xl bg-navy-900 text-white"><Icon name={pr.icon} /></span>
+              <Icon name="arrow-up-right" size={20} class="text-muted transition-[color,transform] duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-teal-600 rtl:group-hover:-translate-x-0.5" />
+            </div>
+            <h3 class="mt-6 text-h6">{pr.title}</h3>
+            <p class="mt-2 text-muted">{pr.text}</p>
+          </a>
+        ))}
+      </div>
+      <p class="mt-8 flex items-start gap-3 rounded-card bg-teal-50 p-5 text-navy-900 md:items-center">
+        <Icon name="search-check" class="mt-0.5 shrink-0 text-teal-600 md:mt-0" />
+        <span><strong class="font-semibold">{p.products.notFoundStrong}</strong> <a href={l("/contact")} target="_blank" rel="noopener" class="font-semibold text-teal-600 underline decoration-teal-600/40 underline-offset-4 transition-colors hover:text-navy-900 hover:decoration-navy-900">{p.products.askUs}<span class="sr-only"> {p.products.askUsSr}</span></a>. {p.products.notFoundRest}</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- SERVICES — dark band, Relume Layout 357 -->
+  <section class="relative isolate overflow-hidden bg-navy-900 px-[5%] py-16 text-white md:py-24 lg:py-28">
+    <ArcMotif class="pointer-events-none absolute -start-60 -bottom-60 -z-10 w-[40rem] opacity-60" dark="#1b3c59" light="#154f6b" />
+    <div class="container">
+      <div class="mb-12 flex flex-col gap-6 md:mb-16 md:flex-row md:items-end md:justify-between">
+        <SectionHeading eyebrow={p.services.eyebrow} title={p.services.title} text={p.services.text} tone="dark" />
+        <Button href="/services" variant="outline-light" icon="arrow-right" class="self-start md:self-auto">{p.services.cta}</Button>
+      </div>
+      <ul class="grid gap-px overflow-hidden rounded-card bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+        {t.services.map((s, i) => (
+          <li class="bg-navy-900 p-6 transition-colors duration-200 hover:bg-navy-800 md:p-7" data-reveal style={`--reveal-delay:${(i % 4) * 60}ms`}>
+            <Icon name={s.icon} class="text-teal-300" />
+            <h3 class="mt-5 text-h6 text-white">{s.title}</h3>
+            <p class="mt-2 text-small text-white/65">{s.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- MORE SOLUTIONS -->
+  <section class="px-[5%] pt-16 md:pt-24 lg:pt-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.more.eyebrow} title={p.more.title} class="mb-10 md:mb-12" />
+      <div class="grid gap-4 md:grid-cols-3">
+        {t.solutions.slice(2).map((s, i) => (
+          <a href={l(s.href)} class="group flex items-center gap-5 rounded-card border border-line bg-white p-6 transition-[box-shadow,border-color] duration-200 hover:border-teal-600/40 hover:shadow-lift md:p-7" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <span class="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700 transition-colors duration-200 group-hover:bg-teal-600 group-hover:text-white"><Icon name={s.icon} size={26} /></span>
+            <span class="min-w-0 flex-1">
+              <span class="block font-display text-h6 font-semibold text-navy-900">{s.label}</span>
+              <span class="mt-1 block text-small text-muted">{s.text}</span>
+            </span>
+            <Icon name="arrow-up-right" size={20} class="shrink-0 text-muted transition-[color,transform] duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-teal-600 rtl:group-hover:-translate-x-0.5" />
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCAL CONTENT -->
+  <section class="px-[5%] py-16 md:py-24">
+    <div class="container">
+      <div class="grid items-center gap-10 rounded-[1.5rem] bg-teal-50 p-8 ring-1 ring-teal-600/15 md:p-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16" data-reveal>
+        <div>
+          <p class="mb-3 inline-flex items-center gap-2 font-display text-small font-semibold uppercase tracking-[0.12em] text-teal-700">
+            <Icon name="flag" size={16} />{p.local.eyebrow}
+          </p>
+          <h2 class="text-h2">{p.local.title}</h2>
+          <p class="mt-4 text-medium text-muted">{p.local.text}</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <Button href="/apply" variant="secondary" icon="arrow-right">{t.ui.applyNow}</Button>
+            <Button href="/become-a-supplier" variant="outline">{p.local.manufacturer}</Button>
+          </div>
+        </div>
+        <dl class="grid grid-cols-2 gap-4">
+          {p.local.metrics.map((m, i) => (
+            <div class:list={["flex flex-col-reverse justify-end rounded-card p-5 md:p-6", i === 0 ? "bg-navy-900 text-white" : "bg-white ring-1 ring-line"]}>
+              <dt class:list={["mt-1 text-small", i === 0 ? "text-white/75" : "text-muted"]}>{m.label}</dt>
+              <dd class:list={["font-display text-h4 font-semibold", i === 0 ? "text-white" : "text-navy-900"]}>{m.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- GET STARTED -->
+  <section class="bg-canvas px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <div class="mb-12 flex flex-col gap-6 md:mb-16 md:flex-row md:items-end md:justify-between">
+        <SectionHeading eyebrow={p.start.eyebrow} title={p.start.title} text={p.start.text} />
+        <Button href="/apply" variant="secondary" icon="arrow-right" class="self-start md:self-auto">{t.ui.applyNow}</Button>
+      </div>
+      <OnboardingSteps />
+      <p class="mt-8 text-small text-muted">
+        {p.start.approvedBefore} <a href={l("/how-it-works")} class="font-medium text-teal-600 underline underline-offset-4 hover:text-navy-900">{p.start.approvedLink}</a> {p.start.approvedAfter}
+      </p>
+    </div>
+  </section>
+
+  <!-- PAYMENT MODELS — Relume Pricing 2 style -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.payment.eyebrow} title={p.payment.title} align="center" class="mb-12 md:mb-16" />
+      <PaymentModels />
+    </div>
+  </section>
+
+  <!-- BRANDS — Relume Logo 3 -->
+  <section class="px-[5%] py-16 md:py-24">
+    <div class="container">
+      <SectionHeading eyebrow={p.brands.eyebrow} title={p.brands.title} align="center" class="mb-10 md:mb-12" />
+      <LogoWall logos={brands} cols="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+        <li class="flex h-24 items-center justify-center rounded-card bg-navy-900 px-4 text-center font-display text-small font-medium text-white md:h-28">
+          {t.ui.thousandsMore}
+        </li>
+      </LogoWall>
+    </div>
+  </section>
+
+  <!-- FAQ for applicants -->
+  <section class="border-t border-line px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container grid gap-10 lg:grid-cols-[1fr_2fr] lg:gap-20">
+      <SectionHeading eyebrow={p.faq.eyebrow} title={p.faq.title} text={p.faq.text}>
+        <a href={l("/contact")} class="mt-6 inline-flex min-h-11 items-center gap-1.5 font-display font-medium text-teal-600 hover:text-navy-900">{t.ui.contactUs} <Icon name="arrow-right" size={18} /></a>
+      </SectionHeading>
+      <Faq items={t.applyFaqs} />
+    </div>
+  </section>
+
+  <!-- CLIENTS — Relume Logo 1 -->
+  <section class="border-t border-line bg-white px-[5%] py-12 md:py-16" aria-labelledby="clients-title">
+    <div class="container">
+      <h2 id="clients-title" class="mb-8 text-center font-display text-small font-semibold uppercase tracking-[0.12em] text-muted">
+        {p.clients}
+      </h2>
+      <div class="mx-auto max-w-3xl"><LogoWall logos={clients} cols="grid-cols-2 sm:grid-cols-3" /></div>
+    </div>
+  </section>
+
+  <CtaBanner />
+</Layout>
+
+<script>
+  // Don't autoplay for reduced-motion or data-saver users; poster stays visible.
+  const v = document.getElementById("hero-video") as HTMLVideoElement | null;
+  const saveData = (navigator as any).connection?.saveData;
+  if (v && (matchMedia("(prefers-reduced-motion: reduce)").matches || saveData)) {
+    v.removeAttribute("autoplay");
+    v.pause();
+  }
+</script>

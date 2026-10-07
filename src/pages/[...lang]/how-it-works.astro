@@ -1,0 +1,104 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import Icon from "../../components/Icon.astro";
+import ProcessSteps from "../../components/ProcessSteps.astro";
+import OnboardingSteps from "../../components/OnboardingSteps.astro";
+import Button from "../../components/Button.astro";
+import PaymentModels from "../../components/PaymentModels.astro";
+import Faq from "../../components/Faq.astro";
+import CtaBanner from "../../components/CtaBanner.astro";
+import { site, waNumber } from "../../data/site";
+import { getLang, getT, langPaths, localizer } from "../../i18n";
+
+export function getStaticPaths() {
+  return langPaths();
+}
+
+const t = getT(Astro.url);
+const p = t.pages.how;
+const l = localizer(getLang(Astro.url));
+const hrefs = [site.loginUrl, `mailto:${site.email}`, `https://wa.me/${waNumber}`];
+const channels = p.channelList.map((c, i) => ({ ...c, href: hrefs[i] }));
+---
+
+<Layout title={p.title} description={p.description}>
+  <PageHeader eyebrow={p.header.eyebrow} title={p.header.title} text={p.header.text} />
+
+  <!-- GETTING STARTED -->
+  <section class="bg-canvas px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <div class="mb-12 flex flex-col gap-6 md:mb-16 md:flex-row md:items-end md:justify-between">
+        <SectionHeading eyebrow={p.start.eyebrow} title={p.start.title} text={p.start.text} />
+        <Button href="/apply" variant="secondary" icon="arrow-right" class="self-start md:self-auto">{t.ui.applyNow}</Button>
+      </div>
+      <OnboardingSteps />
+    </div>
+  </section>
+
+  <!-- PROCESS — Relume Timeline 20 -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.process.eyebrow} title={p.process.title} text={p.process.text} class="mb-12 md:mb-16">
+        <div class="mt-6 flex flex-wrap gap-4 text-small">
+          <span class="inline-flex items-center gap-2"><span class="size-3 rounded-full bg-navy-900" aria-hidden="true"></span>{p.process.yourStep}</span>
+          <span class="inline-flex items-center gap-2"><span class="size-3 rounded-full bg-teal-600" aria-hidden="true"></span>{p.process.ourStep}</span>
+        </div>
+      </SectionHeading>
+      <ProcessSteps />
+    </div>
+  </section>
+
+  <!-- CHANNELS — Relume Layout 239 -->
+  <section class="bg-canvas px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.channels.eyebrow} title={p.channels.title} class="mb-12 md:mb-16" />
+      <div class="grid gap-4 md:grid-cols-3">
+        {channels.map((c, i) => (
+          <a href={c.href} class="group flex flex-col rounded-card border border-line bg-white p-7 transition-[box-shadow,border-color] duration-200 hover:border-teal-600/40 hover:shadow-lift md:p-8" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <span class="flex size-12 items-center justify-center rounded-xl bg-navy-900 text-white"><Icon name={c.icon} /></span>
+            <h3 class="mt-6 text-h5">{c.title}</h3>
+            <p class="mt-2 flex-1 text-muted">{c.text}</p>
+            <span class="mt-6 inline-flex items-center gap-1.5 font-display text-small font-medium text-teal-600">
+              {c.cta}<Icon name="arrow-right" size={16} class="transition-transform duration-200 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- PAYMENT MODELS -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.payment.eyebrow} title={p.payment.title} text={p.payment.text} align="center" class="mb-12 md:mb-16" />
+      <PaymentModels />
+    </div>
+  </section>
+
+  <!-- ASSURANCES -->
+  <section class="bg-navy-900 px-[5%] py-16 text-white md:py-20">
+    <div class="container grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      {t.pillars.map((pl, i) => (
+        <div data-reveal style={`--reveal-delay:${i * 60}ms`}>
+          <Icon name={pl.icon} class="text-teal-300" />
+          <h3 class="mt-4 text-h6 text-white">{pl.title}</h3>
+          <p class="mt-1.5 text-small text-white/70">{pl.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- FAQ — Relume FAQ 1 -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container grid gap-10 lg:grid-cols-[1fr_2fr] lg:gap-20">
+      <SectionHeading eyebrow={p.faq.eyebrow} title={p.faq.title} text={p.faq.text}>
+        <a href={l("/contact")} class="mt-6 inline-flex min-h-11 items-center gap-1.5 font-display font-medium text-teal-600 hover:text-navy-900">{t.ui.contactUs} <Icon name="arrow-right" size={18} /></a>
+      </SectionHeading>
+      <Faq />
+    </div>
+  </section>
+
+  <CtaBanner />
+</Layout>

@@ -1,0 +1,25 @@
+---
+// Pattern from Relume Logo 3 — static grid (no marquee: lighter, no motion issues).
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  logos: { name: string; src: ImageMetadata }[];
+  cols?: string;
+}
+const { logos, cols = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" } = Astro.props;
+---
+
+<ul class:list={["grid gap-3 md:gap-4", cols]}>
+  {logos.map((logo, i) => (
+    <li
+      class="flex h-24 items-center justify-center rounded-card border border-line bg-white px-6 py-5 transition-shadow duration-200 hover:shadow-card md:h-28"
+      data-reveal
+      style={`--reveal-delay:${Math.min(i, 8) * 40}ms`}
+    >
+      <Image src={logo.src} alt={logo.name} height={112} densities={[1, 2]} class="max-h-full w-auto max-w-full object-contain" />
+    </li>
+  ))}
+  <slot />
+
+</ul>

@@ -1,0 +1,31 @@
+---
+// Pattern from Relume CTA 25 (contained dark card, heading + two buttons).
+import Button from "./Button.astro";
+import ArcMotif from "./ArcMotif.astro";
+import { site } from "../data/site";
+import { getT } from "../i18n";
+
+interface Props {
+  title?: string;
+  text?: string;
+  secondaryLabel?: string; // e.g. "Request on oupco.app" on solution pages
+}
+const t = getT(Astro.url);
+const { title = t.ui.cta.title, text = t.ui.cta.text, secondaryLabel = t.ui.loginPlatform } = Astro.props;
+---
+
+<section class="px-[5%] py-16 md:py-24">
+  <div class="container">
+    <div class="relative isolate overflow-hidden rounded-[1.5rem] bg-navy-900 px-6 py-12 text-white md:px-14 md:py-16" data-reveal>
+      <ArcMotif class="pointer-events-none absolute -end-28 -top-28 -z-10 w-[26rem] md:-end-10 md:-top-36 md:w-[30rem]" dark="#1b3c59" light="#195e7f" />
+      <div class="max-w-xl">
+        <h2 class="text-h2 text-white">{title}</h2>
+        <p class="mt-4 text-medium text-white/75">{text}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <Button href="/apply" variant="light" size="lg" icon="arrow-right">{t.ui.applyNow}</Button>
+          <Button href={site.loginUrl} variant="outline-light" size="lg">{secondaryLabel}</Button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

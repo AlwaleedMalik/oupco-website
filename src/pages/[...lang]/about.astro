@@ -1,0 +1,126 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import Icon from "../../components/Icon.astro";
+import LogoWall from "../../components/LogoWall.astro";
+import CtaBanner from "../../components/CtaBanner.astro";
+import ArcMotif from "../../components/ArcMotif.astro";
+import { clients } from "../../data/logos";
+import { getT, langPaths } from "../../i18n";
+
+export function getStaticPaths() {
+  return langPaths();
+}
+
+const t = getT(Astro.url);
+const p = t.pages.about;
+---
+
+<Layout title={p.title} description={p.description}>
+  <PageHeader eyebrow={p.header.eyebrow} title={p.header.title} text={p.header.text} />
+
+  <!-- STORY — Relume Layout 1 -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
+      <SectionHeading eyebrow={p.story.eyebrow} title={p.story.title} />
+      <div class="space-y-5 text-medium text-muted" data-reveal>
+        <p>
+          <strong class="font-semibold text-navy-900">OUPCO (<span dir="ltr">{t.company.fullName}</span>)</strong> {p.story.p1}
+        </p>
+        <p>{p.story.p2}</p>
+        <p>{p.story.p3}</p>
+      </div>
+    </div>
+
+    <div class="container mt-16 grid gap-4 md:mt-20 md:grid-cols-2">
+      <div class="rounded-card bg-canvas p-8 md:p-10" data-reveal>
+        <h3 class="mb-4 text-h5">{p.modelTitle}</h3>
+        <ul>
+          {p.model.map((m) => (
+            <li class="flex items-start gap-3 border-t border-line py-4 first:border-0">
+              <span class:list={["mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full", m.yes ? "bg-teal-600 text-white" : "bg-sand text-muted"]}>
+                <Icon name={m.yes ? "check" : "minus"} size={14} strokeWidth={2.5} />
+              </span>
+              <span class:list={[m.yes ? "text-navy-900" : "text-muted"]}>{m.text}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <dl class="grid grid-cols-2 gap-4">
+        {t.stats.map((s, i) => (
+          <div class:list={["flex flex-col-reverse justify-start rounded-card p-6 md:p-8", i === 3 ? "bg-teal-600 text-white" : i === 0 ? "bg-navy-900 text-white" : "border border-line"]} data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <dt class:list={["mt-1 text-small", i === 0 || i === 3 ? "text-white/75" : "text-muted"]}>{s.label}</dt>
+            <dd class:list={["font-display text-h2 font-semibold", i === 0 || i === 3 ? "text-white" : "text-navy-900"]}>{s.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- VISION & MISSION — Relume Layout 141 -->
+  <section class="bg-canvas px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container grid gap-4 md:grid-cols-2">
+      {p.vm.map((c, i) => (
+        <article class:list={["relative isolate overflow-hidden rounded-card p-8 md:p-12", i === 0 ? "bg-navy-900 text-white" : "bg-white border border-line"]} data-reveal style={`--reveal-delay:${i * 80}ms`}>
+          {i === 0 && <ArcMotif class="pointer-events-none absolute -end-24 -bottom-24 -z-10 w-72 opacity-80" dark="#1b3c59" light="#195e7f" />}
+          <span class:list={["flex size-12 items-center justify-center rounded-xl", i === 0 ? "bg-white/10 text-teal-300" : "bg-teal-100 text-teal-700"]}><Icon name={c.icon} /></span>
+          <h2 class:list={["mt-8 text-h3", i === 0 && "text-white"]}>{c.title}</h2>
+          <p class:list={["mt-4 text-large", i === 0 ? "text-white/80" : "text-muted"]}>{c.text}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- VALUES — Relume Layout 245 -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.values.eyebrow} title={p.values.title} text={p.values.text} class="mb-12 md:mb-16" />
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {t.values.map((v, i) => (
+          <article class="rounded-card border border-line bg-white p-6 transition-shadow duration-200 hover:shadow-lift md:p-7" data-reveal style={`--reveal-delay:${(i % 4) * 60}ms`}>
+            <span class="flex size-11 items-center justify-center rounded-xl bg-teal-100 text-teal-700"><Icon name={v.icon} size={22} /></span>
+            <h3 class="mt-5 text-h6">{v.title}</h3>
+            <p class="mt-2 text-small text-muted">{v.text}</p>
+          </article>
+        ))}
+        <aside class="flex flex-col justify-between rounded-card bg-teal-600 p-6 text-white md:p-7" data-reveal>
+          <Icon name="award" size={28} />
+          <div>
+            <p class="font-display text-h6 font-semibold">{p.iso.title}</p>
+            <p class="mt-2 text-small text-white/85">{p.iso.text}</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- VISION 2030 — dark band -->
+  <section class="relative isolate overflow-hidden bg-navy-900 px-[5%] py-16 text-white md:py-24 lg:py-28">
+    <ArcMotif class="pointer-events-none absolute -end-48 top-1/2 -z-10 w-[36rem] -translate-y-1/2 opacity-70" dark="#1b3c59" light="#154f6b" />
+    <div class="container grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-20">
+      <SectionHeading eyebrow={p.v2030.eyebrow} title={p.v2030.title} text={p.v2030.text} tone="dark" />
+      <div class="grid gap-4 sm:grid-cols-2">
+        {t.vision2030.map((v, i) => (
+          <div class="rounded-card border border-white/10 bg-white/[0.04] p-6" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <Icon name={v.icon} class="text-teal-300" />
+            <h3 class="mt-4 text-h6 text-white">{v.title}</h3>
+            <p class="mt-1.5 text-small text-white/70">{v.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CLIENTS -->
+  <section class="px-[5%] py-16 md:py-24">
+    <div class="container">
+      <SectionHeading eyebrow={p.clients.eyebrow} title={p.clients.title} align="center" class="mb-10 md:mb-12" />
+      <LogoWall logos={clients} cols="mx-auto max-w-4xl grid-cols-2 sm:grid-cols-4">
+        <li class="flex h-24 items-center justify-center rounded-card bg-canvas px-4 text-center font-display text-small font-medium text-navy-900 md:h-28">{t.ui.andGrowing}</li>
+      </LogoWall>
+    </div>
+  </section>
+
+  <CtaBanner title={p.cta} />
+</Layout>

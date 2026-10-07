@@ -1,0 +1,74 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import Icon from "../../components/Icon.astro";
+import Button from "../../components/Button.astro";
+import NumberedSteps from "../../components/NumberedSteps.astro";
+import CtaBanner from "../../components/CtaBanner.astro";
+import { site } from "../../data/site";
+import { getT, langPaths } from "../../i18n";
+
+export function getStaticPaths() {
+  return langPaths();
+}
+
+const t = getT(Astro.url);
+const p = t.pages.printing;
+---
+
+<Layout title={p.title} description={p.description}>
+  <PageHeader eyebrow={p.header.eyebrow} title={p.header.title} text={p.header.text}>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <Button href="/apply" variant="secondary" size="lg" icon="arrow-right">{t.ui.applyNow}</Button>
+      <Button href={site.loginUrl} variant="outline-light" size="lg">{t.ui.requestOnApp}</Button>
+    </div>
+  </PageHeader>
+
+  <!-- CATEGORIES -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.categories.eyebrow} title={p.categories.title} class="mb-12 md:mb-16" />
+      <div class="grid gap-4 md:grid-cols-2">
+        {t.printingCategories.map((c, i) => (
+          <article class="group flex flex-col rounded-card border border-line bg-white p-7 transition-shadow duration-200 hover:shadow-lift md:p-9" data-reveal style={`--reveal-delay:${(i % 2) * 80}ms`}>
+            <span class="flex size-14 items-center justify-center rounded-2xl bg-navy-900 text-white transition-colors duration-200 group-hover:bg-teal-600"><Icon name={c.icon} size={26} /></span>
+            <h3 class="mt-6 text-h4">{c.title}</h3>
+            <p class="mt-2 text-muted">{c.text}</p>
+            <ul class="mt-6 grid gap-x-6 gap-y-2.5 border-t border-line pt-6 sm:grid-cols-2">
+              {c.items.map((it) => (
+                <li class="flex items-center gap-2.5 text-small text-navy-900"><Icon name="check" size={16} class="shrink-0 text-teal-600" />{it}</li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- OPTIONS -->
+  <section class="bg-canvas px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.options.eyebrow} title={p.options.title} text={p.options.text} class="mb-12 md:mb-16" />
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {t.printingOptions.map((o, i) => (
+          <div class="rounded-card bg-white p-6 ring-1 ring-line md:p-7" data-reveal style={`--reveal-delay:${(i % 3) * 70}ms`}>
+            <span class="flex size-11 items-center justify-center rounded-xl bg-teal-100 text-teal-700"><Icon name={o.icon} size={22} /></span>
+            <h3 class="mt-5 text-h6">{o.title}</h3>
+            <p class="mt-1.5 text-small text-muted">{o.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.process.eyebrow} title={p.process.title} class="mb-12 md:mb-16" />
+      <NumberedSteps steps={t.printingSteps} />
+    </div>
+  </section>
+
+  <CtaBanner title={p.cta.title} text={p.cta.text} secondaryLabel={t.ui.requestOnApp} />
+</Layout>

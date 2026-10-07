@@ -1,0 +1,47 @@
+---
+// "Without OUPCO vs with OUPCO". Pattern from Relume Comparison sections.
+// Table on desktop, stacked cards on mobile.
+import Icon from "./Icon.astro";
+import { getT } from "../i18n";
+
+const t = getT(Astro.url);
+const rows = t.beforeAfter;
+---
+
+<div data-reveal>
+  <!-- Desktop table -->
+  <table class="hidden w-full overflow-hidden rounded-card text-start md:table">
+    <caption class="sr-only">{t.ui.comparisonCaption}</caption>
+    <thead>
+      <tr>
+        <th scope="col" class="w-1/4 pb-4"><span class="sr-only">{t.ui.topic}</span></th>
+        <th scope="col" class="rounded-t-card bg-sand/60 px-6 py-4 text-start font-display text-small font-semibold uppercase tracking-[0.08em] text-muted">{t.ui.without}</th>
+        <th scope="col" class="rounded-t-card bg-navy-900 px-6 py-4 text-start font-display text-small font-semibold uppercase tracking-[0.08em] text-teal-300">{t.ui.with}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((r, i) => (
+        <tr>
+          <th scope="row" class:list={["py-5 pe-6 text-start align-top font-display font-semibold text-navy-900", i > 0 && "border-t border-line"]}>{r.topic}</th>
+          <td class:list={["bg-sand/60 px-6 py-5 align-top text-muted", i > 0 && "border-t border-line", i === rows.length - 1 && "rounded-b-card"]}>
+            <span class="flex items-start gap-3"><Icon name="circle-x" size={20} class="mt-0.5 shrink-0 text-muted/70" />{r.without}</span>
+          </td>
+          <td class:list={["bg-navy-900 px-6 py-5 align-top text-white", i > 0 && "border-t border-white/10", i === rows.length - 1 && "rounded-b-card"]}>
+            <span class="flex items-start gap-3"><Icon name="circle-check-big" size={20} class="mt-0.5 shrink-0 text-teal-300" /><span class="font-medium">{r.with}</span></span>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <!-- Mobile cards -->
+  <ul class="grid gap-3 md:hidden">
+    {rows.map((r) => (
+      <li class="overflow-hidden rounded-card ring-1 ring-line">
+        <p class="bg-white px-5 pt-4 font-display font-semibold text-navy-900">{r.topic}</p>
+        <p class="flex items-start gap-3 bg-white px-5 py-3 text-small text-muted"><Icon name="circle-x" size={18} class="mt-0.5 shrink-0 text-muted/70" /><span><span class="sr-only">{t.ui.without}: </span>{r.without}</span></p>
+        <p class="flex items-start gap-3 bg-navy-900 px-5 py-3.5 text-small text-white"><Icon name="circle-check-big" size={18} class="mt-0.5 shrink-0 text-teal-300" /><span class="font-medium"><span class="sr-only">{t.ui.with}: </span>{r.with}</span></p>
+      </li>
+    ))}
+  </ul>
+</div>

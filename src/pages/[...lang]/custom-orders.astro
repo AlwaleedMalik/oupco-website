@@ -1,0 +1,69 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import Icon from "../../components/Icon.astro";
+import Button from "../../components/Button.astro";
+import NumberedSteps from "../../components/NumberedSteps.astro";
+import CtaBanner from "../../components/CtaBanner.astro";
+import { site } from "../../data/site";
+import { getT, langPaths } from "../../i18n";
+
+export function getStaticPaths() {
+  return langPaths();
+}
+
+const t = getT(Astro.url);
+const p = t.pages.custom;
+---
+
+<Layout title={p.title} description={p.description}>
+  <PageHeader eyebrow={p.header.eyebrow} title={p.header.title} text={p.header.text}>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <Button href="/apply" variant="secondary" size="lg" icon="arrow-right">{t.ui.applyNow}</Button>
+      <Button href={site.loginUrl} variant="outline-light" size="lg">{t.ui.requestOnApp}</Button>
+    </div>
+  </PageHeader>
+
+  <!-- EXAMPLES -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.examples.eyebrow} title={p.examples.title} class="mb-12 md:mb-16" />
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {t.customExamples.map((e, i) => (
+          <article class="rounded-card border border-line bg-white p-6 transition-shadow duration-200 hover:shadow-lift md:p-7" data-reveal style={`--reveal-delay:${(i % 3) * 70}ms`}>
+            <span class="flex size-12 items-center justify-center rounded-xl bg-teal-100 text-teal-700"><Icon name={e.icon} /></span>
+            <h3 class="mt-5 text-h6">{e.title}</h3>
+            <p class="mt-1.5 text-muted">{e.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT TO INCLUDE -->
+  <section class="bg-canvas px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-20">
+      <SectionHeading eyebrow={p.include.eyebrow} title={p.include.title} text={p.include.text} />
+      <ol class="grid gap-4 sm:grid-cols-2">
+        {t.customInclude.map((c, i) => (
+          <li class="rounded-card bg-white p-6 ring-1 ring-line" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <span class="flex size-9 items-center justify-center rounded-full bg-navy-900 font-display text-small font-semibold text-white">{i + 1}</span>
+            <h3 class="mt-4 text-h6">{c.title}</h3>
+            <p class="mt-1.5 text-small text-muted">{c.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.process.eyebrow} title={p.process.title} class="mb-12 md:mb-16" />
+      <NumberedSteps steps={t.customSteps} />
+    </div>
+  </section>
+
+  <CtaBanner title={p.cta.title} text={p.cta.text} secondaryLabel={t.ui.requestOnApp} />
+</Layout>

@@ -1,0 +1,101 @@
+---
+// Accessible form field: visible label, helper text, inline error slot.
+// `rule` attaches a shared validation rule (src/data/validation.ts) that FormEnhance enforces.
+// type="phone-sa" renders a fixed "+966" prefix; the user types the 9-digit mobile number (5XXXXXXXX).
+// Select options can be { value, label }: the English value is saved, the label is shown.
+import Icon from "./Icon.astro";
+import { rules, type Rule, type RuleName } from "../data/validation";
+import { getLang, getT } from "../i18n";
+
+type Option = string | { value: string; label: string };
+
+interface Props {
+  name: string;
+  label: string;
+  type?: "text" | "email" | "textarea" | "select" | "phone-sa";
+  rule?: RuleName;
+  required?: boolean;
+  placeholder?: string;
+  autocomplete?: string;
+  helper?: string;
+  options?: Option[];
+  class?: string;
+  rows?: number;
+  grow?: boolean; // textarea fills spare height on desktop (parent must be a flex column)
+}
+const { name, label, type = "text", required = false, placeholder, autocomplete, helper, options = [], class: className = "", rows = 5, grow = false } = Astro.props;
+const lang = getLang(Astro.url);
+const f = getT(Astro.url).forms;
+const ruleName: RuleName | undefined = Astro.props.rule ?? (type === "phone-sa" ? "phoneSa" : undefined);
+const rule: Rule | undefined = ruleName ? rules[ruleName] : undefined;
+const opts = options.map((o) => (typeof o === "string" ? { value: o, label: o } : o));
+
+const id = `f-${name}`;
+const describedBy = [helper && `${id}-help`, `${id}-err`].filter(Boolean).join(" ");
+const control =
+  "block w-full rounded-button border border-line-strong bg-white px-4 text-regular text-ink placeholder:text-muted/70 transition-[border-color,box-shadow] duration-150 hover:border-navy-700/40 focus:border-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-600/15 aria-[invalid=true]:border-error aria-[invalid=true]:ring-error/10";
+// Emails, URLs and numbers are typed left-to-right; on Arabic pages they stay right-aligned with the form
+const ltr = rule?.ltr || type === "email";
+
+const ruleAttrs = rule
+  ? {
+      "data-pattern": rule.pattern,
+      "data-msg": rule.message[lang],
+      "data-digits": rule.digits ? "" : undefined,
+      "data-max": rule.digits ? rule.maxlength : undefined,
+      // digit fields are trimmed in JS so pasted "+966 5…" numbers aren't cut off by the browser first
+      maxlength: rule.digits ? undefined : rule.maxlength,
+      minlength: rule.minlength,
+      inputmode: rule.inputmode,
+      autocapitalize: rule.autocapitalize,
+    }
+  : {};
+---
+
+<div class={className} data-field>
+  <label for={id} class="mb-2 block font-display text-small font-medium text-navy-900">
+    {label}{required ? <span class="text-error" aria-hidden="true"> *</span> : <span class="font-sans font-normal text-muted"> {f.optional}</span>}
+  </label>
+  {type === "textarea" ? (
+    <textarea id={id} name={name} rows={rows} required={required} placeholder={placeholder} aria-describedby={describedBy} class:list={[control, "py-3", grow && "lg:flex-1 lg:resize-none"]} {...ruleAttrs} />
+  ) : type === "select" ? (
+    <div class="relative">
+      <select id={id} name={name} required={required} aria-describedby={describedBy} class:list={[control, "min-h-12 cursor-pointer appearance-none pe-11"]}>
+        <option value="">{f.select}</option>
+        {opts.map((o) => <option value={o.value}>{o.label}</option>)}
+      </select>
+      <Icon name="chevron-down" size={20} class="pointer-events-none absolute end-4 top-1/2 -translate-y-1/2 text-muted" />
+    </div>
+  ) : type === "phone-sa" ? (
+    <div class="relative" dir="ltr">
+      <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center rounded-l-button border-r border-line-strong bg-canvas px-4 font-medium text-navy-900" aria-hidden="true">+966</span>
+      <input
+        id={id}
+        name={name}
+        type="tel"
+        required={required}
+        placeholder={placeholder ?? "5XXXXXXXX"}
+        autocomplete={autocomplete ?? "tel-national"}
+        aria-describedby={describedBy}
+        data-prefix="+966"
+        class:list={[control, "min-h-12 pl-[4.75rem] tracking-[0.08em]"]}
+        {...ruleAttrs}
+      />
+    </div>
+  ) : (
+    <input
+      id={id}
+      name={name}
+      type={type}
+      required={required}
+      placeholder={placeholder}
+      autocomplete={autocomplete}
+      aria-describedby={describedBy}
+      dir={ltr ? "ltr" : undefined}
+      class:list={[control, "min-h-12", ltr && "rtl:text-right"]}
+      {...ruleAttrs}
+    />
+  )}
+  {helper && <p id={`${id}-help`} class="mt-1.5 text-small text-muted">{helper}</p>}
+  <p id={`${id}-err`} class="mt-1.5 hidden text-small font-medium text-error" data-error></p>
+</div>

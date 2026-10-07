@@ -1,0 +1,58 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import Icon from "../../components/Icon.astro";
+import CtaBanner from "../../components/CtaBanner.astro";
+import { getT, langPaths } from "../../i18n";
+
+export function getStaticPaths() {
+  return langPaths();
+}
+
+const t = getT(Astro.url);
+const p = t.pages.services;
+---
+
+<Layout title={p.title} description={p.description}>
+  <PageHeader eyebrow={p.header.eyebrow} title={p.header.title} text={p.header.text} />
+
+  <!-- SERVICES — Relume Layout 242 (numbered feature cards) -->
+  <section class="px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {t.services.map((s, i) => (
+        <article class="group flex flex-col rounded-card border border-line bg-white p-6 transition-[box-shadow,border-color] duration-200 hover:border-teal-600/40 hover:shadow-lift md:p-7" data-reveal style={`--reveal-delay:${(i % 4) * 60}ms`}>
+          <div class="flex items-start justify-between">
+            <span class="flex size-12 items-center justify-center rounded-xl bg-teal-100 text-teal-700 transition-colors duration-200 group-hover:bg-teal-600 group-hover:text-white"><Icon name={s.icon} /></span>
+            <span class="font-display text-h5 font-semibold text-line-strong">{String(i + 1).padStart(2, "0")}</span>
+          </div>
+          <h2 class="mt-6 text-h6">{s.title}</h2>
+          <p class="mt-2 flex-1 text-small text-muted">{s.text}</p>
+          <ul class="mt-6 space-y-2 border-t border-line pt-5">
+            {s.details.map((d) => (
+              <li class="flex items-center gap-2 text-small text-navy-900"><span class="size-1.5 rounded-full bg-teal-600" aria-hidden="true"></span>{d}</li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- WHY — Relume Layout 237 -->
+  <section class="bg-canvas px-[5%] py-16 md:py-24 lg:py-28">
+    <div class="container">
+      <SectionHeading eyebrow={p.why.eyebrow} title={p.why.title} align="center" class="mb-12 md:mb-16" />
+      <div class="grid gap-8 md:grid-cols-3 md:gap-12">
+        {p.reasons.map((r, i) => (
+          <div class="text-center" data-reveal style={`--reveal-delay:${i * 80}ms`}>
+            <span class="mx-auto flex size-14 items-center justify-center rounded-2xl bg-navy-900 text-white"><Icon name={r.icon} size={26} /></span>
+            <h3 class="mt-6 text-h5">{r.title}</h3>
+            <p class="mx-auto mt-2 max-w-xs text-muted">{r.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CtaBanner title={p.cta.title} text={p.cta.text} />
+</Layout>

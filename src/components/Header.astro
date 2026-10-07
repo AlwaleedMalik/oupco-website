@@ -1,0 +1,289 @@
+---
+// Structure ported from Relume Navbar 2 (logo left, menu center, CTA right),
+// rebuilt as static HTML + ~20 lines of vanilla JS for the mobile menu.
+import Logo from "./Logo.astro";
+import Button from "./Button.astro";
+import Icon from "./Icon.astro";
+import { site } from "../data/site";
+import { getLang, getT, localizer, stripLang } from "../i18n";
+
+interface Props {
+  overlay?: boolean; // transparent over a dark hero until scrolled
+}
+const { overlay = false } = Astro.props;
+const lang = getLang(Astro.url);
+const t = getT(Astro.url);
+const l = localizer(lang);
+// path without the /ar prefix, so active states compare against the plain hrefs
+const path = stripLang(Astro.url.pathname.replace(/\/$/, "") || "/");
+const otherLang = lang === "ar" ? "en" : "ar";
+const switchHref = otherLang === "ar" ? `/ar${path === "/" ? "" : path}` : path;
+const nav = t.nav.map((item) => ({ ...item, children: item.children ? t.solutions : undefined }));
+---
+
+<header
+  id="site-header"
+  data-overlay={overlay ? "true" : undefined}
+  class="group/header fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,border-color] duration-300"
+>
+  <div class="px-[5%]">
+    <div class="container flex h-18 items-center justify-between gap-3 xl:gap-6">
+      <a href={l("/")} class="relative flex shrink-0 items-center" aria-label={t.ui.home}>
+        <span class="header-logo-dark"><Logo eager class="h-6 w-auto md:h-7" /></span>
+        <span class="header-logo-white absolute inset-y-0 start-0 flex items-center"><Logo tone="white" eager class="h-6 w-auto md:h-7" /></span>
+      </a>
+
+      <nav aria-label={t.ui.mainNav} class="hidden lg:block">
+        <ul class="flex items-center gap-1">
+          {nav.map((item) => {
+            if (item.children) {
+              const active = item.children.some((c) => c.href === path);
+              return (
+                <li class="dropdown relative" data-dropdown>
+                  <button
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="solutions-menu"
+                    class:list={[
+                      "header-link relative inline-flex min-h-11 whitespace-nowrap cursor-pointer items-center gap-1 rounded-lg px-2.5 xl:px-3.5 font-display text-[0.9375rem] font-medium transition-colors duration-200",
+                      active && "is-active",
+                    ]}
+                  >
+                    {item.label}
+                    <Icon name="chevron-down" size={16} class="dropdown-chevron transition-transform duration-200" />
+                  </button>
+                  <div id="solutions-menu" class="dropdown-panel absolute left-1/2 top-full w-[30rem] pt-3">
+                    <ul class="rounded-card bg-white p-2 shadow-lift ring-1 ring-line">
+                      {item.children.map((c) => (
+                        <li>
+                          <a
+                            href={l(c.href)}
+                            aria-current={path === c.href ? "page" : undefined}
+                            class="group flex items-start gap-4 rounded-xl p-3 transition-colors duration-150 hover:bg-teal-50 focus-visible:bg-teal-50 aria-[current=page]:bg-teal-50"
+                          >
+                            <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-teal-700 transition-colors duration-150 group-hover:bg-teal-600 group-hover:text-white group-aria-[current=page]:bg-teal-600 group-aria-[current=page]:text-white">
+                              <Icon name={c.icon} size={20} />
+                            </span>
+                            <span>
+                              <span class="block font-display text-[0.9375rem] font-semibold text-navy-900">{c.label}</span>
+                              <span class="mt-0.5 block text-small text-muted">{c.text}</span>
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </li>
+              );
+            }
+            const active = path === item.href;
+            return (
+              <li>
+                <a
+                  href={l(item.href)}
+                  aria-current={active ? "page" : undefined}
+                  class:list={[
+                    "header-link relative inline-flex min-h-11 whitespace-nowrap items-center rounded-lg px-2.5 xl:px-3.5 font-display text-[0.9375rem] font-medium transition-colors duration-200",
+                    active && "is-active",
+                  ]}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <div class="flex items-center gap-1 sm:gap-2">
+        <a
+          href={switchHref}
+          hreflang={t.ui.switchLang.hreflang}
+          lang={t.ui.switchLang.hreflang}
+          data-lang-switch={otherLang}
+          aria-label={t.ui.switchLang.aria}
+          class="header-login inline-flex min-h-11 whitespace-nowrap items-center gap-1.5 rounded-button px-3 font-display text-[0.9375rem] font-medium transition-colors duration-200"
+        >
+          <Icon name="languages" size={18} />
+          {t.ui.switchLang.label}
+        </a>
+        <a
+          href={site.loginUrl}
+          class="header-login hidden min-h-11 whitespace-nowrap items-center gap-1.5 rounded-button px-3 xl:px-4 font-display text-[0.9375rem] font-medium transition-colors duration-200 md:inline-flex"
+        >
+          <Icon name="log-in" size={18} />
+          <span class="lg:max-xl:sr-only">{t.ui.login}</span>
+        </a>
+        <span class="hidden sm:contents"><Button href="/apply" variant="secondary">{t.ui.applyNow}</Button></span>
+        <button
+          type="button"
+          id="menu-toggle"
+          class="header-burger inline-flex size-11 items-center justify-center rounded-lg lg:hidden"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          aria-label={t.ui.openMenu}
+          data-label-open={t.ui.openMenu}
+          data-label-close={t.ui.closeMenu}
+        >
+          <Icon name="menu" class="icon-open" />
+          <Icon name="x" class="icon-close hidden" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden border-t border-line bg-white lg:hidden" >
+    <nav aria-label={t.ui.mobileNav} class="px-[5%] pb-8 pt-4">
+      <ul class="flex flex-col">
+        {nav.map((item) =>
+          item.children ? (
+            <li>
+              <details class="group border-b border-line" open={item.children.some((c) => c.href === path)}>
+                <summary class="flex min-h-13 cursor-pointer list-none items-center justify-between font-display text-lg font-medium text-navy-900 [&::-webkit-details-marker]:hidden">
+                  {item.label}
+                  <Icon name="chevron-down" size={20} class="text-muted transition-transform duration-200 group-open:rotate-180" />
+                </summary>
+                <ul class="pb-3">
+                  {item.children.map((c) => (
+                    <li>
+                      <a
+                        href={l(c.href)}
+                        aria-current={path === c.href ? "page" : undefined}
+                        class="flex min-h-12 items-center gap-3 rounded-lg px-2 text-navy-900 hover:bg-teal-50 aria-[current=page]:text-teal-600"
+                      >
+                        <span class="flex size-9 items-center justify-center rounded-lg bg-teal-100 text-teal-700"><Icon name={c.icon} size={18} /></span>
+                        <span class="font-medium">{c.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </li>
+          ) : (
+            <li>
+              <a
+                href={l(item.href)}
+                aria-current={path === item.href ? "page" : undefined}
+                class="flex min-h-13 items-center justify-between border-b border-line font-display text-lg font-medium text-navy-900 aria-[current=page]:text-teal-600"
+              >
+                {item.label}
+                <Icon name="chevron-right" size={20} class="text-muted" />
+              </a>
+            </li>
+          )
+        )}
+      </ul>
+      <div class="mt-6 grid gap-3">
+        <Button href="/apply" variant="secondary" size="lg">{t.ui.applyNow}</Button>
+        <Button href={site.loginUrl} variant="outline" size="lg">{t.ui.loginPlatform}</Button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<style>
+  /* Solid state (default for inner pages, and overlay pages once scrolled / menu open) */
+  #site-header {
+    background: rgb(255 255 255 / 0.92);
+    backdrop-filter: saturate(1.4) blur(12px);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    box-shadow: 0 1px 0 var(--color-line);
+  }
+  .header-logo-white { opacity: 0; }
+  .header-link { color: var(--color-navy-900); }
+  .header-link:hover { background: var(--color-teal-50); }
+  .header-link.is-active { color: var(--color-teal-600); }
+  .header-link.is-active::after {
+    content: ""; position: absolute; left: 0.875rem; right: 0.875rem; bottom: 0.4rem;
+    height: 2px; border-radius: 2px; background: currentColor;
+  }
+  .header-login { color: var(--color-navy-900); }
+  .header-login:hover { background: var(--color-teal-50); }
+  .header-burger { color: var(--color-navy-900); }
+
+  /* Overlay state */
+  #site-header[data-overlay]:not(.is-solid) {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+  }
+  #site-header[data-overlay]:not(.is-solid) .header-logo-dark { opacity: 0; }
+  #site-header[data-overlay]:not(.is-solid) .header-logo-white { opacity: 1; }
+  #site-header[data-overlay]:not(.is-solid) :is(.header-link, .header-login, .header-burger) { color: #fff; }
+  #site-header[data-overlay]:not(.is-solid) :is(.header-link, .header-login):hover { background: rgb(255 255 255 / 0.12); }
+  #site-header[data-overlay]:not(.is-solid) .header-link.is-active { color: #fff; }
+  .header-logo-dark, .header-logo-white { transition: opacity 0.25s; }
+
+  /* Solutions dropdown: opens on hover (desktop) or click/keyboard */
+  .dropdown-panel {
+    visibility: hidden;
+    opacity: 0;
+    transform: translate(-50%, 6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+  }
+  .dropdown[data-open] .dropdown-panel,
+  .dropdown:hover .dropdown-panel {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, 0);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s;
+  }
+  .dropdown[data-open] .dropdown-chevron,
+  .dropdown:hover .dropdown-chevron { transform: rotate(180deg); }
+</style>
+
+<script>
+  const header = document.getElementById("site-header")!;
+  const toggle = document.getElementById("menu-toggle")!;
+  const menu = document.getElementById("mobile-menu")!;
+
+  const setSolid = () => header.classList.toggle("is-solid", window.scrollY > 24 || toggle.getAttribute("aria-expanded") === "true");
+  if (header.dataset.overlay) {
+    setSolid();
+    window.addEventListener("scroll", setSolid, { passive: true });
+  }
+
+  const setOpen = (open: boolean) => {
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", (open ? toggle.dataset.labelClose : toggle.dataset.labelOpen) ?? "");
+    menu.classList.toggle("hidden", !open);
+    toggle.querySelector(".icon-open")!.classList.toggle("hidden", open);
+    toggle.querySelector(".icon-close")!.classList.toggle("hidden", !open);
+    document.body.style.overflow = open ? "hidden" : "";
+    if (header.dataset.overlay) setSolid();
+  };
+  toggle.addEventListener("click", () => setOpen(toggle.getAttribute("aria-expanded") !== "true"));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+  window.matchMedia("(min-width: 1024px)").addEventListener("change", (e) => e.matches && setOpen(false));
+
+  // Language switch: remember the visitor's explicit choice
+  document.querySelectorAll<HTMLAnchorElement>("[data-lang-switch]").forEach((a) =>
+    a.addEventListener("click", () => {
+      try { localStorage.setItem("oupco-lang", a.dataset.langSwitch!); } catch {}
+    })
+  );
+
+  // Solutions dropdown: click toggles, Esc / outside click / tabbing away closes
+  document.querySelectorAll<HTMLElement>("[data-dropdown]").forEach((dd) => {
+    const btn = dd.querySelector<HTMLButtonElement>("button")!;
+    const setDd = (open: boolean) => {
+      dd.toggleAttribute("data-open", open);
+      btn.setAttribute("aria-expanded", String(open));
+    };
+    btn.addEventListener("click", () => setDd(!dd.hasAttribute("data-open")));
+    dd.addEventListener("focusout", (e) => !dd.contains(e.relatedTarget as Node) && setDd(false));
+    document.addEventListener("click", (e) => !dd.contains(e.target as Node) && setDd(false));
+    dd.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && dd.hasAttribute("data-open")) {
+        setDd(false);
+        btn.focus();
+      }
+    });
+  });
+</script>

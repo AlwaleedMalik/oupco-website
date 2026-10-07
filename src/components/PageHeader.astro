@@ -1,0 +1,30 @@
+---
+// Inner-page hero. Pattern from Relume Header 5 (dark band, left-aligned text),
+// with the logo orbit as the brand device.
+import ArcMotif from "./ArcMotif.astro";
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  text: string;
+}
+const { eyebrow, title, text } = Astro.props;
+---
+
+<section class="relative isolate overflow-hidden bg-navy-900 px-[5%] text-white">
+  <ArcMotif
+    class="pointer-events-none absolute -end-40 top-1/2 -z-10 w-[34rem] -translate-y-1/2 opacity-90 md:-end-24 md:w-[40rem]"
+    dark="#1b3c59"
+    light="#195e7f"
+  />
+  <div class="container py-16 md:py-24 lg:py-28">
+    <div class="max-w-2xl">
+      <p class="mb-4 inline-flex items-center gap-2 font-display text-small font-semibold uppercase tracking-[0.12em] text-teal-300">
+        <span class="h-px w-6 bg-current" aria-hidden="true"></span>{eyebrow}
+      </p>
+      <h1 class="text-h1 text-white">{title}</h1>
+      <p class="mt-5 max-w-xl text-large text-white/75 md:mt-6">{text}</p>
+      <slot />
+    </div>
+  </div>
+</section>

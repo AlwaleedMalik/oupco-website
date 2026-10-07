@@ -1,0 +1,31 @@
+---
+// Apply → Review → Contract & SLA → Platform access
+import Icon from "./Icon.astro";
+import { getT } from "../i18n";
+
+interface Props {
+  tone?: "light" | "dark";
+}
+const { tone = "light" } = Astro.props;
+const dark = tone === "dark";
+const t = getT(Astro.url);
+---
+
+<ol class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  {t.onboardingSteps.map((s, i) => (
+    <li
+      class:list={["relative rounded-card p-6 md:p-7", dark ? "border border-white/10 bg-white/[0.04]" : "border border-line bg-white"]}
+      data-reveal
+      style={`--reveal-delay:${i * 70}ms`}
+    >
+      <div class="flex items-center justify-between">
+        <span class:list={["flex size-12 items-center justify-center rounded-xl", i === 3 ? "bg-teal-600 text-white" : dark ? "bg-white/10 text-teal-300" : "bg-teal-100 text-teal-700"]}>
+          <Icon name={s.icon} />
+        </span>
+        <span class:list={["font-display text-small font-semibold", dark ? "text-white/50" : "text-muted"]}>{t.ui.step} {i + 1}</span>
+      </div>
+      <h3 class:list={["mt-5 text-h6", dark && "text-white"]}>{s.title}</h3>
+      <p class:list={["mt-1.5 text-small", dark ? "text-white/70" : "text-muted"]}>{s.text}</p>
+    </li>
+  ))}
+</ol>

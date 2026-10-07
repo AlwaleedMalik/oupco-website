@@ -1,0 +1,47 @@
+---
+// Ported from Relume Timeline 20: horizontal rail on desktop, vertical on mobile.
+// Static HTML/CSS only. Uses logical (start/end) positioning so it mirrors in RTL.
+import { getT } from "../i18n";
+
+interface Props {
+  tone?: "light" | "dark";
+}
+const { tone = "light" } = Astro.props;
+const dark = tone === "dark";
+const { orderSteps } = getT(Astro.url);
+---
+
+<ol class="relative grid gap-0 lg:grid-cols-7 lg:gap-4">
+  {orderSteps.map((step, i) => {
+    const ours = step.ours;
+    return (
+      <li class="relative grid grid-cols-[3rem_1fr] gap-x-4 pb-8 last:pb-0 lg:block lg:pb-0" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+        {/* rail */}
+        <span
+          aria-hidden="true"
+          class:list={[
+            "absolute start-6 top-12 bottom-0 w-px lg:start-12 lg:-end-4 lg:top-6 lg:bottom-auto lg:h-px lg:w-auto",
+            i === orderSteps.length - 1 && "hidden",
+            dark ? "bg-white/20" : "bg-line-strong",
+          ]}
+        />
+        <span
+          class:list={[
+            "relative z-10 flex size-12 items-center justify-center rounded-full font-display text-base font-semibold ring-8",
+            ours ? "bg-teal-600 text-white" : dark ? "bg-white text-navy-900" : "bg-navy-900 text-white",
+            dark ? "ring-navy-900" : "ring-white",
+          ]}
+        >
+          {String(i + 1).padStart(2, "0")}
+        </span>
+        <div class="lg:mt-5">
+          <p class:list={["font-display text-[0.75rem] font-semibold uppercase tracking-[0.12em]", ours ? (dark ? "text-teal-300" : "text-teal-600") : dark ? "text-white/60" : "text-muted"]}>
+            {step.who}
+          </p>
+          <h3 class:list={["mt-1 text-h6", dark && "text-white"]}>{step.title}</h3>
+          <p class:list={["mt-1.5 text-small", dark ? "text-white/70" : "text-muted"]}>{step.text}</p>
+        </div>
+      </li>
+    );
+  })}
+</ol>

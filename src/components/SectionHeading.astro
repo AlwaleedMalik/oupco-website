@@ -1,0 +1,27 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  text?: string;
+  align?: "left" | "center";
+  tone?: "light" | "dark";
+  class?: string;
+  as?: "h1" | "h2";
+}
+const { eyebrow, title, text, align = "left", tone = "light", class: className = "", as: Tag = "h2" } = Astro.props;
+const dark = tone === "dark";
+---
+
+<div class:list={["max-w-2xl", align === "center" && "mx-auto text-center", className]} data-reveal>
+  {eyebrow && (
+    <p class:list={[
+      "mb-3 inline-flex items-center gap-2 font-display text-small font-semibold uppercase tracking-[0.12em] md:mb-4",
+      dark ? "text-teal-300" : "text-teal-600",
+    ]}>
+      <span class="h-px w-6 bg-current" aria-hidden="true"></span>{eyebrow}
+    </p>
+  )}
+  <Tag class:list={["text-h2", dark && "text-white"]}>{title}</Tag>
+  {text && <p class:list={["mt-4 text-medium md:mt-5", dark ? "text-white/75" : "text-muted"]}>{text}</p>}
+  <slot />
+</div>

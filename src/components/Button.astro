@@ -1,0 +1,39 @@
+---
+import Icon from "./Icon.astro";
+import { getLang, localizePath } from "../i18n";
+
+interface Props {
+  href: string;
+  variant?: "primary" | "secondary" | "outline" | "light" | "outline-light" | "link";
+  size?: "md" | "lg";
+  icon?: string;
+  class?: string;
+  external?: boolean;
+}
+
+const { href, variant = "primary", size = "md", icon, class: className = "", external = false } = Astro.props;
+// Internal links stay in the current language ("/apply" → "/ar/apply" on Arabic pages)
+const to = localizePath(href, getLang(Astro.url));
+
+const base =
+  "group inline-flex items-center justify-center gap-2 rounded-button font-display font-medium whitespace-nowrap transition-[background-color,color,border-color,box-shadow,transform] duration-200 ease-out-soft active:scale-[0.98] cursor-pointer";
+const sizes = { md: "min-h-11 px-5 text-[0.9375rem]", lg: "min-h-13 px-7 text-base" };
+const variants = {
+  primary: "bg-navy-900 text-white hover:bg-teal-600 shadow-card",
+  secondary: "bg-teal-600 text-white hover:bg-teal-700 shadow-card",
+  outline: "border border-navy-900/20 text-navy-900 hover:border-navy-900 hover:bg-navy-900/[0.03]",
+  light: "bg-white text-navy-900 hover:bg-teal-50 shadow-card",
+  "outline-light": "border border-white/40 text-white hover:bg-white/10 hover:border-white",
+  link: "min-h-11 px-0 text-teal-600 hover:text-navy-900",
+};
+---
+
+<a
+  href={to}
+  class:list={[base, variant === "link" ? "" : sizes[size], variants[variant], className]}
+  target={external ? "_blank" : undefined}
+  rel={external ? "noopener" : undefined}
+>
+  <slot />
+  {icon && <Icon name={icon} size={18} class="transition-transform duration-200 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />}
+</a>

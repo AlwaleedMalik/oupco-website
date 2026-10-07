@@ -1,0 +1,159 @@
+---
+// Progressive enhancement for any <form data-enhance data-table="…">:
+// inline validation, error focus, loading + success states,
+// and submission straight to Supabase (insert-only via RLS).
+// After insert, a Supabase Database Webhook → n8n → Brevo sends the emails.
+// Messages come from the page language (src/i18n); saved values stay in English.
+import { getT } from "../i18n";
+
+const f = getT(Astro.url).forms;
+const i18n = { required: f.required, chooseOption: f.chooseOption, invalid: f.invalid, tooShort: f.tooShort, tooLong: f.tooLong, sending: f.sending };
+---
+
+<script is:inline id="form-i18n" type="application/json" set:html={JSON.stringify(i18n)} />
+
+<script>
+  const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
+  const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined;
+
+  const i18n = JSON.parse(document.getElementById("form-i18n")?.textContent || "{}");
+  const messages: Record<string, string> = {
+    valueMissing: i18n.required,
+    typeMismatch: i18n.invalid,
+    patternMismatch: i18n.invalid,
+    tooShort: i18n.tooShort,
+    tooLong: i18n.tooLong,
+  };
+
+  const errorFor = (el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) => {
+    const v = el.validity;
+    if (v.valueMissing) return el.type === "radio" ? i18n.chooseOption : messages.valueMissing;
+    const value = el.value.trim();
+    // Shared rules from src/data/validation.ts
+    if (value && el.dataset.pattern && !new RegExp(el.dataset.pattern, "u").test(value)) return el.dataset.msg ?? messages.patternMismatch;
+    const key = (Object.keys(messages) as (keyof ValidityState)[]).find((k) => v[k]);
+    return key ? (el.dataset.msg ?? messages[key]) : "";
+  };
+
+  const validate = (el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) => {
+    const err = el.closest("[data-field]")?.querySelector<HTMLElement>("[data-error]");
+    if (!err) return true;
+    const msg = errorFor(el);
+    if (el.type === "radio") {
+      el.closest("[data-field]")?.querySelectorAll("input[type=radio]").forEach((r) => r.setAttribute("aria-invalid", msg ? "true" : "false"));
+    } else {
+      el.setAttribute("aria-invalid", msg ? "true" : "false");
+    }
+    err.textContent = msg;
+    err.classList.toggle("hidden", !msg);
+    return !msg;
+  };
+
+  // Digit-only fields: convert Arabic-Indic numerals, strip everything else.
+  // Saudi mobile fields also accept pasted full numbers (+966 5…, 00966 5…, 05…).
+  const toDigits = (s: string) =>
+    s.replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+      .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+      .replace(/\D/g, "");
+
+  const normalizeDigits = (el: HTMLInputElement) => {
+    let d = toDigits(el.value);
+    if (el.dataset.prefix === "+966") {
+      if (d.startsWith("00966")) d = d.slice(5);
+      else if (d.startsWith("966") && d.length >= 12) d = d.slice(3);
+      else if (d.startsWith("05") && d.length >= 10) d = d.slice(1);
+    }
+    d = d.slice(0, Number(el.dataset.max ?? 99));
+    if (d !== el.value) el.value = d;
+  };
+
+  // Form fields → row object. Checkboxes become booleans, blanks are omitted.
+  const toRow = (form: HTMLFormElement) => {
+    const row: Record<string, string | boolean> = { page: location.pathname, locale: document.documentElement.lang || "en" };
+    for (const el of Array.from(form.elements) as HTMLInputElement[]) {
+      if (!el.name || el.name === "_hp") continue;
+      if (el.type === "checkbox") row[el.name] = el.checked;
+      else if (el.type === "radio") {
+        if (el.checked) row[el.name] = el.value === "true" ? true : el.value === "false" ? false : el.value;
+      } else if (el.value.trim()) row[el.name] = (el.dataset.prefix ?? "") + el.value.trim();
+    }
+    return row;
+  };
+
+  const submit = async (table: string, row: Record<string, unknown>) => {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      console.warn("[forms] Supabase env vars missing — running in demo mode.", row);
+      await new Promise((r) => setTimeout(r, 700));
+      return;
+    }
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        // Legacy anon keys are JWTs and also go in Authorization; new sb_publishable_ keys only use `apikey`
+        ...(SUPABASE_ANON_KEY.startsWith("eyJ") ? { Authorization: `Bearer ${SUPABASE_ANON_KEY}` } : {}),
+        "Content-Type": "application/json",
+        Prefer: "return=minimal", // anon has no SELECT rights, so don't ask for the row back
+      },
+      body: JSON.stringify(row),
+    });
+    if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+  };
+
+  document.querySelectorAll<HTMLFormElement>("form[data-enhance]").forEach((form) => {
+    form.noValidate = true;
+    const fields = () => Array.from(form.querySelectorAll<HTMLInputElement>("input:not([type=checkbox]):not([name=_hp]), textarea, select"));
+
+    fields().forEach((el) => {
+      if (el.type === "radio") {
+        el.addEventListener("change", () => validate(el));
+        return;
+      }
+      if (el.hasAttribute("data-digits")) el.addEventListener("input", () => normalizeDigits(el));
+      el.addEventListener("blur", () => el.value && validate(el));
+      el.addEventListener("input", () => el.getAttribute("aria-invalid") === "true" && validate(el));
+    });
+
+    const showSuccess = () => {
+      const done = form.parentElement!.querySelector<HTMLElement>("[data-success]")!;
+      form.hidden = true;
+      done.hidden = false;
+      done.focus();
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      // one entry per radio group, so each group reports once
+      const seen = new Set<string>();
+      const invalid = fields()
+        .filter((el) => el.type !== "radio" || (!seen.has(el.name) && seen.add(el.name)))
+        .filter((el) => !validate(el));
+      if (invalid.length) {
+        invalid[0].focus();
+        return;
+      }
+
+      // Honeypot: bots fill hidden fields. Pretend success, send nothing.
+      const hp = form.querySelector<HTMLInputElement>("[name=_hp]");
+      if (hp?.value) return showSuccess();
+
+      const btn = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+      const label = btn.innerHTML;
+      btn.disabled = true;
+      btn.setAttribute("aria-busy", "true");
+      btn.textContent = i18n.sending;
+      form.querySelector<HTMLElement>("[data-form-error]")?.classList.add("hidden");
+
+      try {
+        await submit(form.dataset.table!, toRow(form));
+        showSuccess();
+      } catch (err) {
+        console.error(err);
+        btn.disabled = false;
+        btn.removeAttribute("aria-busy");
+        btn.innerHTML = label;
+        form.querySelector<HTMLElement>("[data-form-error]")?.classList.remove("hidden");
+      }
+    });
+  });
+</script>
