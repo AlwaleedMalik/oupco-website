@@ -1,0 +1,13 @@
+// Cloudflare Workers: serve the static build in dist/ (no server code, no adapter).
+// Having this file stops `wrangler deploy` from auto-adding the Astro Cloudflare adapter.
+{
+  "name": "oupco-website",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // /about → about.html, /ar/about → ar/about.html
+    "html_handling": "auto-trailing-slash",
+    // unknown URLs get the bilingual 404.html with a real 404 status
+    "not_found_handling": "404-page"
+  }
+}
