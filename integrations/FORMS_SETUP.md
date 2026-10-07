@@ -3,9 +3,9 @@
 ```
 Visitor submits form (Apply / Contact / Supplier)
   → Supabase (row saved: client_applications / contact_requests / supplier_applications)
-  → Supabase Database Webhook (on INSERT)
+  → Postgres trigger notify_n8n (on INSERT, async via pg_net, secret from Vault)
   → n8n workflow "OUPCO website forms → Brevo"
-  → Brevo: confirmation to the visitor + alert to alwaleed@oupco.com (testing — switch to the team inbox later)
+  → Brevo: confirmation to the visitor + alert to info@oupco.com (all from notifications@oupco.com)
 ```
 
 The row is saved first, so nothing is lost if n8n or Brevo is temporarily down.
@@ -21,24 +21,28 @@ Dropdown answers are always saved in English (e.g. "Healthcare"), whichever lang
    (Add the same two variables in your hosting provider when deploying.)
 
 ## 2. Brevo
-1. Senders & IPs → add and verify `info@oupco.com` and authenticate the oupco.com domain (DKIM/DMARC).
-2. SMTP & API → create an **API key**.
+1. Senders & IPs → `notifications@oupco.com` (sender) and `info@oupco.com` (reply-to) are verified; the oupco.com domain is authenticated.
+2. SMTP & API → **API keys & MCP** → create an **API key** (starts with `xkeysib-`). An SMTP key will not work.
+3. Security → Authorized IPs must include the n8n server (148.230.122.0/24 is allowed).
+
+**DNS (Cloudflare):** every email record (`brevo1/brevo2._domainkey`, `_dmarc`, `mta-sts`) must be **DNS only** (grey cloud).
+Proxied email records are invisible to mail servers. DMARC is hosted by EasyDMARC (`_dmarc` CNAME, currently `p=none`);
+change the policy in EasyDMARC, not in DNS.
 
 ## 3. n8n
-1. Workflows → Import from file → `integrations/n8n-website-forms.json`.
+1. Workflows → Import from file → `integrations/n8n-import.json` (live workflow: "oupco.com", RyH1OwM3HXb1NjQb).
 2. **Supabase insert webhook** node → Credential: *Header Auth*
-   - Name: `x-webhook-secret`  Value: a long random string (keep it for step 4).
+   - Name: `x-webhook-secret`  Value: `N8N_WEBHOOK_SECRET` from `site/.env` (never commit it).
 3. **Send via Brevo** node → Credential: *Header Auth*
-   - Name: `api-key`  Value: your Brevo API key.
+   - Name: `api-key`  Value: your Brevo API key. Set Allowed HTTP Request Domains → `api.brevo.com`.
+   - Make sure this node uses the Brevo credential, not the webhook one (n8n may auto-pick the first Header Auth).
 4. Activate the workflow and copy its **Production URL**.
 5. To change the sender or the team recipients, edit `SENDER` / `TEAM` at the top of the **Build emails** node.
 
 ## 4. Supabase → n8n
-Database → Webhooks → Create (one for each table, or one per table with the same settings):
-- Table: `client_applications` (then repeat for `contact_requests` and `supplier_applications`)
-- Events: **Insert**
-- Type: HTTP Request, POST, URL = the n8n Production URL
-- HTTP Header: `x-webhook-secret` = the same secret from step 3.2
+1. Integrations → Vault → add a secret named `n8n_webhook_secret` with the same value as step 3.2.
+2. SQL Editor → run `supabase/migrations/004_form_notifications.sql` (one trigger per form table, POSTs to
+   `https://n8n.srv1053552.hstgr.cloud/webhook/oupco-website-forms`). No Database Webhooks need to be created in the UI.
 
 ## 5. Test
 Submit all three forms (Apply, Contact, Supplier) → check the rows in Table Editor → check both inboxes.

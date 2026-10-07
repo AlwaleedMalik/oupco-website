@@ -2,8 +2,9 @@
 // from a Supabase Database Webhook payload: { type, table, record }.
 // Submissions from Arabic pages (record.locale === 'ar') get an Arabic, right-to-left confirmation.
 // The internal alert to the team is always English and flagged when the submission was in Arabic.
-const SENDER = { name: 'OUPCO', email: 'info@oupco.com' }; // must be a verified sender in Brevo
-const TEAM = [{ email: 'alwaleed@oupco.com', name: 'Alwaleed' }]; // testing: all 3 forms notify this inbox
+const SENDER = { name: 'OUPCO', email: 'notifications@oupco.com' }; // must be a verified sender in Brevo
+const REPLY_TO = { name: 'OUPCO', email: 'info@oupco.com' }; // where customers' replies land
+const TEAM = [{ email: 'info@oupco.com', name: 'OUPCO' }]; // all 3 forms notify the team inbox
 const NAVY = '#142e45', TEAL = '#195e7f';
 
 const body = $input.first().json.body || {};
@@ -91,9 +92,15 @@ const details = (pairs, lang) => table_(pairs.map(([k, v]) => row(L[lang].labels
 const visitorLang = AR ? 'ar' : 'en';
 const arBadge = AR ? p('<span style="display:inline-block;padding:4px 10px;border-radius:999px;background:#e3f0f6;color:#195e7f;font-weight:bold">Arabic submission · reply in Arabic</span>', 'en') : '';
 const flag = AR ? '[AR] ' : '';
-// Visitor replies go to the sender (info@oupco.com); team alerts reply straight to the customer
-const visitor = (subject, html) => ({ sender: SENDER, to: [{ email: r.email, name: r.name }], subject, htmlContent: html });
-const team = (subject, html) => ({ sender: SENDER, to: TEAM, replyTo: { email: r.email, name: r.name }, subject: flag + subject, htmlContent: html });
+// Customer replies go to info@oupco.com; team alerts reply straight to the customer
+// Plain-text alternative: HTML-only emails score worse with spam filters
+const text = (html) => html
+  .replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|h1|tr)>/gi, '\n').replace(/<\/td>/gi, '  ')
+  .replace(/<[^>]+>/g, '')
+  .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&')
+  .replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+const visitor = (subject, html) => ({ sender: SENDER, to: [{ email: r.email, name: r.name }], replyTo: REPLY_TO, subject, htmlContent: html, textContent: text(html) });
+const team = (subject, html) => ({ sender: SENDER, to: TEAM, replyTo: { email: r.email, name: r.name }, subject: flag + subject, htmlContent: html, textContent: text(html) });
 
 let emails = [];
 
