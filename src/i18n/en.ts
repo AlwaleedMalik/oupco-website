@@ -58,7 +58,7 @@ export const en = {
       text: "Apply for a business account. Once your contract and SLA are signed, your team can start ordering on oupco.app.",
     },
     footer: {
-      tagline: "A Saudi B2B procurement platform aligned with Vision 2030.",
+      tagline: "A Saudi B2B procurement platform aligned with Saudi Vision.",
       company: "Company",
       solutions: "Solutions",
       getStarted: "Get started",
@@ -69,7 +69,7 @@ export const en = {
       loginApp: "Log in to oupco.app",
       becomeSupplier: "Become a supplier",
       rights: "All rights reserved.",
-      proud: "Proudly Saudi · Vision 2030",
+      proud: "Proudly Saudi · Aligned with Saudi Vision",
     },
   },
 
@@ -375,7 +375,7 @@ export const en = {
       },
       more: { eyebrow: "More ways we help", title: "Printing, events and anything else you need" },
       local: {
-        eyebrow: "Saudi first · Vision 2030",
+        eyebrow: "Saudi first · Aligned with Saudi Vision",
         title: "Hit your local content targets without extra work",
         text: "Saudi-made options in every category, local suppliers prioritized on every RFQ, and spend reports that show your local content share.",
         manufacturer: "Are you a Saudi manufacturer?",
@@ -402,7 +402,7 @@ export const en = {
 
     about: {
       title: "About",
-      description: "OUPCO is a Saudi B2B procurement platform and independent intermediary aligned with Vision 2030. Our vision, mission and values.",
+      description: "OUPCO is a Saudi B2B procurement platform and independent intermediary aligned with Saudi Vision. Our vision, mission and values.",
       header: { eyebrow: "About OUPCO", title: "The trusted procurement partner for the Kingdom", text: "We help enterprises and government entities across Saudi Arabia buy goods and services through compliant, transparent and data-driven processes." },
       story: {
         eyebrow: "Our story",
@@ -425,7 +425,7 @@ export const en = {
       ],
       values: { eyebrow: "Our values", title: "Seven commitments behind every order", text: "They shape how we choose suppliers, handle your data and measure ourselves." },
       iso: { title: "ISO roadmap", text: "Working toward ISO 9001, ISO 20400 and ISO 22301." },
-      v2030: { eyebrow: "Saudi Vision 2030", title: "Built in the Kingdom, for the Kingdom", text: "Our procurement model is designed to support national priorities, from local content to a more sustainable supply chain." },
+      v2030: { eyebrow: "Saudi Vision", title: "Built in the Kingdom, for the Kingdom", text: "Our procurement model is designed to support national priorities, from local content to a more sustainable supply chain." },
       clients: { eyebrow: "Our clients", title: "Organizations that buy with OUPCO" },
       cta: "Let's build a better procurement process together",
     },
@@ -564,7 +564,7 @@ export const en = {
       region: "Coverage",
       local: {
         question: "Do you manufacture or add value locally in Saudi Arabia?",
-        help: "Local content is a priority for OUPCO and Vision 2030. Local suppliers are fast-tracked in our review.",
+        help: "Local content is a priority for OUPCO and Saudi Vision. Local suppliers are fast-tracked in our review.",
         yes: { title: "Yes, local content", text: "We manufacture, assemble or add value in Saudi Arabia.", badge: "Fast-tracked" },
         no: { title: "No, we import or resell", text: "Our products or services are sourced from outside the Kingdom." },
       },
