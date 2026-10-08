@@ -14,7 +14,7 @@ export const ar: Content = {
   },
 
   company: {
-    fullName: "Office Unified Procurement Core Orbit",
+    fullName: "Office Unified Procurement Company", // OUP Company: OUP = Office Unified Procurement
     legalName: "شركة أوب",
     hours: "الأحد – الخميس، 8:00 – 17:00", // PLACEHOLDER
     address: {

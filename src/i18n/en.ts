@@ -13,7 +13,7 @@ export const en = {
 
   // Language-specific company details (neutral ones live in data/site.ts)
   company: {
-    fullName: "Office Unified Procurement Core Orbit",
+    fullName: "Office Unified Procurement Company", // OUP Company: OUP = Office Unified Procurement
     legalName: "OUP Company",
     hours: "Sunday – Thursday, 8:00 – 17:00", // PLACEHOLDER
     address: {
