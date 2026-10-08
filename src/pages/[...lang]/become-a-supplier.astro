@@ -7,9 +7,7 @@ import Button from "../../components/Button.astro";
 import Field from "../../components/Field.astro";
 import FormEnhance from "../../components/FormEnhance.astro";
 import Honeypot from "../../components/Honeypot.astro";
-import LogoWall from "../../components/LogoWall.astro";
 import { site } from "../../data/site";
-import { suppliers } from "../../data/logos";
 import { en, getT, langPaths, options } from "../../i18n";
 
 export function getStaticPaths() {
@@ -84,16 +82,6 @@ const localOptions = [
           ))}
         </ol>
       </div>
-    </div>
-  </section>
-
-  <!-- CURRENT SUPPLIERS -->
-  <section class="px-[5%] pt-16 md:pt-24">
-    <div class="container">
-      <h2 class="mb-8 text-center font-display text-small font-semibold uppercase tracking-[0.12em] text-muted">{p.network}</h2>
-      <LogoWall logos={suppliers} cols="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-        <li class="flex h-24 items-center justify-center rounded-card bg-navy-900 px-4 text-center font-display text-small font-medium text-white md:h-28">{t.ui.hundredsMore}</li>
-      </LogoWall>
     </div>
   </section>
 
